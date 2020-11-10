@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
-
+include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 add_library(vulkan_impl SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobject.cpp
