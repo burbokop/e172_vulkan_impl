@@ -79,6 +79,10 @@ public:
     virtual e172::Vector resolution() const override;
     virtual e172::Vector screenSize() const override;
 
+
+    // AbstractRenderer interface
+public:
+    virtual e172::Color *bitmap() const override;
 };
 
 #endif // VULKANRENDERER_H

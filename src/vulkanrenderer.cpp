@@ -299,3 +299,7 @@ e172::Vector VulkanRenderer::resolution() const {
 e172::Vector VulkanRenderer::screenSize() const {
     return m_resolution;
 }
+
+e172::Color *VulkanRenderer::bitmap() const {
+    return nullptr;
+}
