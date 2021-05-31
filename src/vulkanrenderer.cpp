@@ -200,7 +200,7 @@ void VulkanRenderer::drawLine(const e172::Vector &point0, const e172::Vector &po
     m_reciepts.push_back(reciept);
 }
 
-void VulkanRenderer::drawRect(const e172::Vector &point0, const e172::Vector &point1, uint32_t color) {
+void VulkanRenderer::drawRect(const e172::Vector &point0, const e172::Vector &point1, uint32_t color, const e172::ShapeFormat &format) {
     Reciept reciept;
     reciept.position0 = transformedPosition(point0);
     reciept.position1 = transformedPosition(point1);
@@ -303,3 +303,6 @@ e172::Vector VulkanRenderer::screenSize() const {
 e172::Color *VulkanRenderer::bitmap() const {
     return nullptr;
 }
+
+
+void VulkanRenderer::setDepth(int64_t depth) {}

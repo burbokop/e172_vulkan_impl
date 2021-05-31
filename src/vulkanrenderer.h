@@ -64,7 +64,7 @@ public:
     virtual void fill(uint32_t color) override;
     virtual void drawPixel(const e172::Vector &point, uint32_t color) override;
     virtual void drawLine(const e172::Vector &point0, const e172::Vector &point1, uint32_t color) override;
-    virtual void drawRect(const e172::Vector &point0, const e172::Vector &point1, uint32_t color) override;
+    virtual void drawRect(const e172::Vector &point0, const e172::Vector &point1, uint32_t color, const e172::ShapeFormat& format = e172::ShapeFormat(false)) override;
     virtual void drawSquare(const e172::Vector &point, int radius, uint32_t color) override;
     virtual void drawCircle(const e172::Vector &point, int radius, uint32_t color) override;
     virtual void drawDiagonalGrid(const e172::Vector &point0, const e172::Vector &point1, int interval, uint32_t color) override;
@@ -78,11 +78,8 @@ public:
     virtual void setResolution(e172::Vector value) override;
     virtual e172::Vector resolution() const override;
     virtual e172::Vector screenSize() const override;
-
-
-    // AbstractRenderer interface
-public:
-    virtual e172::Color *bitmap() const override;
+    virtual e172::Color *bitmap() const override;    
+    virtual void setDepth(int64_t depth) override;
 };
 
 #endif // VULKANRENDERER_H
