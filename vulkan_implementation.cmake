@@ -57,13 +57,24 @@ add_library(vulkan_impl SHARED
 
 
 find_package(Vulkan REQUIRED)
-#find_package(glfw3 REQUIRED)
 
-target_link_libraries(vulkan_impl PRIVATE
-    Vulkan::Vulkan
-    SDL2
-    freetype
-    e172
-    )
+
+if($ENV{WITH_MAGURA})
+    find_package(magura REQUIRED)
+    target_connect_magura(sdl_impl)
+    target_link_libraries(sdl_impl
+        Vulkan::Vulkan
+        freetype
+        e172
+        )
+else($ENV{WITH_MAGURA})
+    target_link_libraries(vulkan_impl PRIVATE
+        Vulkan::Vulkan
+        SDL2
+        freetype
+        e172
+        )
+endif($ENV{WITH_MAGURA})
+
 
 target_include_directories(vulkan_impl PRIVATE $<BUILD_INTERFACE:/usr/include/freetype2>)
