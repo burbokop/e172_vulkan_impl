@@ -1,0 +1,5 @@
+connector: "cmake"
+
+dependencies:
+  - 'libsdl-org.SDL.main:configure'
+
