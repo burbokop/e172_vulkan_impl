@@ -61,8 +61,8 @@ find_package(Vulkan REQUIRED)
 
 if($ENV{WITH_MAGURA})
     find_package(magura REQUIRED)
-    target_connect_magura(sdl_impl)
-    target_link_libraries(sdl_impl
+    target_connect_magura(vulkan_impl)
+    target_link_libraries(vulkan_impl
         Vulkan::Vulkan
         freetype
         e172
