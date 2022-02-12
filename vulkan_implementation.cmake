@@ -1,3 +1,8 @@
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
 add_library(vulkan_impl SHARED
