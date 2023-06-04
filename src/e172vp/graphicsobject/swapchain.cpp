@@ -1,5 +1,6 @@
 #include "swapchain.h"
 
+#include <limits>
 
 vk::SwapchainKHR e172vp::SwapChain::swapChainHandle() const {
     return m_swapChainHandle;

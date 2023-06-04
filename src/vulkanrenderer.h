@@ -78,8 +78,11 @@ public:
     virtual void setResolution(e172::Vector value) override;
     virtual e172::Vector resolution() const override;
     virtual e172::Vector screenSize() const override;
-    virtual e172::Color *bitmap() const override;    
     virtual void setDepth(int64_t depth) override;
+    virtual void modify_bitmap(const std::function<void(e172::Color *)> &modifier) override
+    {
+        // TODO
+    }
 };
 
 #endif // VULKANRENDERER_H

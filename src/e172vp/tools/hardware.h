@@ -1,10 +1,8 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
+#include <optional>
 #include <vulkan/vulkan.hpp>
-
-
-
 
 namespace e172vp {
 
@@ -31,8 +29,7 @@ struct Hardware {
     static vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
     static vk::PresentModeKHR chooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
     static vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, vk::Extent2D defaultExtent = vk::Extent2D());
-
 };
 
-}
+} // namespace e172vp
 #endif // HARDWARE_H

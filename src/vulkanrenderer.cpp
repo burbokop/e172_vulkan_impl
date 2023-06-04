@@ -12,7 +12,7 @@
 
 VulkanRenderer::VulkanRenderer(const std::vector<std::string> &args) {
     if(args.size() > 0) {
-        const auto assetFolder = e172::Additional::absolutePath("../assets", args[0]);
+        const auto assetFolder = e172::Additional::absolutePath("./assets", args[0]);
         m_bootstrapObject = new e172vp::BootstrapObject(assetFolder);
 
         m_mesh0 = new e172vp::Mesh(e172vp::Mesh::load(e172::Additional::constrainPath(assetFolder + "/meshes/ship1.obj")));
@@ -299,10 +299,5 @@ e172::Vector VulkanRenderer::resolution() const {
 e172::Vector VulkanRenderer::screenSize() const {
     return m_resolution;
 }
-
-e172::Color *VulkanRenderer::bitmap() const {
-    return nullptr;
-}
-
 
 void VulkanRenderer::setDepth(int64_t depth) {}
