@@ -1,9 +1,9 @@
 #include "bootstrapobject.h"
 
-#include <SDL2/SDL_vulkan.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_vulkan.h>
+#include <e172/additional.h>
 #include <fstream>
-#include <src/additional.h>
 
 e172vp::PresentationObject * e172vp::BootstrapObject::presentationObject() const {
     return m_presentationObject;

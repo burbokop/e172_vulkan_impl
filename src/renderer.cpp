@@ -1,16 +1,15 @@
-#include "vulkanrenderer.h"
+#include "renderer.h"
 
 #include "e172vp/bootstrapobject.h"
-
-#include <src/additional.h>
-
 #include "e172vp/tools/mesh.h"
-#include <glm/gtc/matrix_transform.hpp>
 #include <SDL2/SDL_image.h>
-#include "e172vp/font.h"
-#include <iostream>
+#include <e172/additional.h>
+#include <glm/gtc/matrix_transform.hpp>
 
-VulkanRenderer::VulkanRenderer(const std::vector<std::string> &args) {
+namespace e172::impl::vulkan {
+
+Renderer::Renderer(const std::vector<std::string> &args)
+{
     if(args.size() > 0) {
         const auto assetFolder = e172::Additional::absolutePath("./assets", args[0]);
         m_bootstrapObject = new e172vp::BootstrapObject(assetFolder);
@@ -52,20 +51,18 @@ VulkanRenderer::VulkanRenderer(const std::vector<std::string> &args) {
     }
 }
 
-VulkanRenderer::~VulkanRenderer() {
+Renderer::~Renderer()
+{
     if(m_bootstrapObject)
         delete m_bootstrapObject;
 }
 
-bool VulkanRenderer::update() {
+bool Renderer::update()
+{
     if(m_bootstrapObject) {
-
-
-
-
         //GET OBJECTS FROM POOL
         std::map<e172vp::Mesh*, std::list<e172vp::AbstractVertexObject*>> usedObjects;
-        for(auto reciept : m_reciepts) {
+        for (const auto &reciept : m_reciepts) {
             auto& list = m_objectsPool[reciept.mesh];
 
             e172vp::AbstractVertexObject *obj = nullptr;
@@ -131,14 +128,16 @@ bool VulkanRenderer::update() {
                     extTexObj->setTranslation(glm::translate(glm::mat4(1.), glm::vec3(reciept.position0.float32X(), reciept.position0.float32Y(), 0)));
                 }
             }
-            obj->setVisible(true);
-
+            assert(obj);
+            if (obj) {
+                obj->setVisible(true);
+            }
 
             usedObjects[reciept.mesh].push_back(obj);
         }
 
         //HIDE OBJECTS IN POOL
-        for(auto l : m_objectsPool) {
+        for (const auto &l : m_objectsPool) {
             for(auto o : l.second)
                 o->setVisible(false);
         }
@@ -163,34 +162,40 @@ bool VulkanRenderer::update() {
     return false;
 }
 
-bool VulkanRenderer::isValid() const {
+bool Renderer::isValid() const
+{
     if(m_bootstrapObject)
         return m_bootstrapObject->isValid();
 
     return false;
 }
 
-size_t VulkanRenderer::presentEffectCount() const {
+size_t Renderer::presentEffectCount() const
+{
     return 0;
 }
 
-std::string VulkanRenderer::presentEffectName(size_t index) const {
+std::string Renderer::presentEffectName(size_t index) const
+{
     return "";
 }
 
-void VulkanRenderer::drawEffect(size_t index, const e172::VariantVector &args) {
+void Renderer::drawEffect(size_t index, const e172::VariantVector &args) {}
 
-}
-
-void VulkanRenderer::fill(uint32_t color) {
+void Renderer::fill(uint32_t color)
+{
     (void)color;
 }
 
-void VulkanRenderer::drawPixel(const e172::Vector &point, uint32_t color) {
+void Renderer::drawPixel(const e172::Vector<double> &point, uint32_t color)
+{
     drawSquare(point, 1, color);
 }
 
-void VulkanRenderer::drawLine(const e172::Vector &point0, const e172::Vector &point1, uint32_t color) {
+void Renderer::drawLine(const e172::Vector<double> &point0,
+                        const e172::Vector<double> &point1,
+                        uint32_t color)
+{
     Reciept reciept;
     reciept.position0 = transformedPosition(point0);
     reciept.position1 = transformedPosition(point1);
@@ -200,7 +205,11 @@ void VulkanRenderer::drawLine(const e172::Vector &point0, const e172::Vector &po
     m_reciepts.push_back(reciept);
 }
 
-void VulkanRenderer::drawRect(const e172::Vector &point0, const e172::Vector &point1, uint32_t color, const e172::ShapeFormat &format) {
+void Renderer::drawRect(const e172::Vector<double> &point0,
+                        const e172::Vector<double> &point1,
+                        uint32_t color,
+                        const e172::ShapeFormat &format)
+{
     Reciept reciept;
     reciept.position0 = transformedPosition(point0);
     reciept.position1 = transformedPosition(point1);
@@ -210,7 +219,8 @@ void VulkanRenderer::drawRect(const e172::Vector &point0, const e172::Vector &po
     m_reciepts.push_back(reciept);
 }
 
-void VulkanRenderer::drawSquare(const e172::Vector &point, int radius, uint32_t color) {
+void Renderer::drawSquare(const e172::Vector<double> &point, int radius, uint32_t color)
+{
     Reciept reciept;
     reciept.position0 = transformedPosition(point - radius);
     reciept.position1 = transformedPosition(point + radius);
@@ -220,7 +230,8 @@ void VulkanRenderer::drawSquare(const e172::Vector &point, int radius, uint32_t 
     m_reciepts.push_back(reciept);
 }
 
-void VulkanRenderer::drawCircle(const e172::Vector &point, int radius, uint32_t color) {
+void Renderer::drawCircle(const e172::Vector<double> &point, int radius, uint32_t color)
+{
     Reciept reciept;
     reciept.position0 = transformedPosition(point - radius);
     reciept.position1 = transformedPosition(point + radius);
@@ -230,14 +241,22 @@ void VulkanRenderer::drawCircle(const e172::Vector &point, int radius, uint32_t 
     m_reciepts.push_back(reciept);
 }
 
-void VulkanRenderer::drawDiagonalGrid(const e172::Vector &point0, const e172::Vector &point1, int interval, uint32_t color) {
+void Renderer::drawDiagonalGrid(const e172::Vector<double> &point0,
+                                const e172::Vector<double> &point1,
+                                int interval,
+                                uint32_t color)
+{
     (void)point0;
     (void)point1;
     (void)interval;
     (void)color;
 }
 
-void VulkanRenderer::drawImage(const e172::Image &image, const e172::Vector &position, double angle, double zoom) {
+void Renderer::drawImage(const e172::Image &image,
+                         const e172::Vector<double> &position,
+                         double angle,
+                         double zoom)
+{
     Reciept reciept;
     reciept.position0 = transformedPosition(position);
     reciept.rotation = angle;
@@ -247,8 +266,12 @@ void VulkanRenderer::drawImage(const e172::Image &image, const e172::Vector &pos
     (void)zoom;
 }
 
-e172::Vector VulkanRenderer::drawString(const std::string &string, const e172::Vector &position, uint32_t color, const e172::TextFormat &format) {
-    e172::Vector size(string.size() * 8, 8);
+e172::Vector<double> Renderer::drawString(const std::string &string,
+                                          const e172::Vector<double> &position,
+                                          uint32_t color,
+                                          const e172::TextFormat &format)
+{
+    e172::Vector<double> size(string.size() * 8, 8);
 
     Reciept reciept;
     reciept.position0 = transformedPosition(position);
@@ -264,40 +287,54 @@ e172::Vector VulkanRenderer::drawString(const std::string &string, const e172::V
     return size;
 }
 
-void VulkanRenderer::applyLensEffect(const e172::Vector &point0, const e172::Vector &point1, double coefficient) {
+void Renderer::applyLensEffect(const e172::Vector<double> &point0,
+                               const e172::Vector<double> &point1,
+                               double coefficient)
+{
     (void)point0;
     (void)point1;
     (void)coefficient;
 }
 
-void VulkanRenderer::applySmooth(const e172::Vector &point0, const e172::Vector &point1, double coefficient) {
+void Renderer::applySmooth(const e172::Vector<double> &point0,
+                           const e172::Vector<double> &point1,
+                           double coefficient)
+{
     (void)point0;
     (void)point1;
     (void)coefficient;
 }
 
-void VulkanRenderer::enableEffect(uint64_t effect) {
+void Renderer::enableEffect(uint64_t effect)
+{
     (void)effect;
 }
 
-void VulkanRenderer::disableEffect(uint64_t effect) {
+void Renderer::disableEffect(uint64_t effect)
+{
     (void)effect;
 }
 
-void VulkanRenderer::setFullscreen(bool value) {
+void Renderer::setFullscreen(bool value)
+{
     (void)value;
 }
 
-void VulkanRenderer::setResolution(e172::Vector value) {
+void Renderer::setResolution(e172::Vector<double> value)
+{
     (void)value;
 }
 
-e172::Vector VulkanRenderer::resolution() const {
+e172::Vector<double> Renderer::resolution() const
+{
     return m_resolution;
 }
 
-e172::Vector VulkanRenderer::screenSize() const {
+e172::Vector<double> Renderer::screenSize() const
+{
     return m_resolution;
 }
 
-void VulkanRenderer::setDepth(int64_t depth) {}
+void Renderer::setDepth(int64_t depth) {}
+
+} // namespace e172::impl::vulkan

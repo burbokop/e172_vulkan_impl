@@ -1,11 +1,23 @@
+cmake_minimum_required(VERSION 3.26.3)
+project(e172_vulkan_impl LANGUAGES CXX VERSION 0.0.1)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
-include_directories(${CMAKE_CURRENT_LIST_DIR})
+add_library(e172_vulkan_impl SHARED)
 
-add_library(vulkan_impl SHARED
+target_sources(e172_vulkan_impl
+PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/src/renderer.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/renderer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphicsprovider.h
+    ${CMAKE_CURRENT_LIST_DIR}/src/graphicsprovider.cpp
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobject.h
     ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobjectcreateinfo.cpp
@@ -51,29 +63,21 @@ add_library(vulkan_impl SHARED
     ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/texturedvertexobject.cpp
     ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/texturedvertexobject.h
     ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/wirevertexobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/wirevertexobject.h
-
-    ${CMAKE_CURRENT_LIST_DIR}/src/vulkanrenderer.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/vulkanrenderer.cpp
-
-    ${CMAKE_CURRENT_LIST_DIR}/src/vulkangraphicsprovider.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/vulkangraphicsprovider.cpp
-)
-
+    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/wirevertexobject.h)
 
 find_package(Vulkan REQUIRED)
 
 
 if($ENV{WITH_MAGURA})
     find_package(magura REQUIRED)
-    target_connect_magura(vulkan_impl)
-    target_link_libraries(vulkan_impl
+    target_connect_magura(e172_vulkan_impl)
+    target_link_libraries(e172_vulkan_impl
         Vulkan::Vulkan
         freetype
         e172
         )
 else($ENV{WITH_MAGURA})
-    target_link_libraries(vulkan_impl PRIVATE
+    target_link_libraries(e172_vulkan_impl PRIVATE
         Vulkan::Vulkan
         SDL2
         freetype
@@ -82,4 +86,4 @@ else($ENV{WITH_MAGURA})
 endif($ENV{WITH_MAGURA})
 
 
-target_include_directories(vulkan_impl PRIVATE $<BUILD_INTERFACE:/usr/include/freetype2>)
+target_include_directories(e172_vulkan_impl PRIVATE $<BUILD_INTERFACE:/usr/include/freetype2>)
