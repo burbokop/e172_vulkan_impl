@@ -1,17 +1,34 @@
 #include "font.h"
 #include "graphicsobject/swapchain.h"
 
-#include <iostream>
 #include "tools/buffer.h"
-#include <thread>
-#include <ft2build.h>
+#include <e172/debug.h>
 #include <freetype/freetype.h>
+#include <ft2build.h>
+#include <iostream>
+#include <thread>
 
-
-
-bool e172vp::Font::createTextureImage32(const vk::Device &logicalDevice, const vk::PhysicalDevice &physicalDevice, const vk::CommandPool &commandPool, const vk::Queue &copyQueue, void* pixels, size_t w, size_t h, vk::Format format, vk::Image *image, vk::DeviceMemory *imageMemory) {
-
-    createImage(logicalDevice, physicalDevice, w, h, format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal, image, imageMemory);
+bool e172vp::Font::createTextureImage32(const vk::Device &logicalDevice,
+                                        const vk::PhysicalDevice &physicalDevice,
+                                        const vk::CommandPool &commandPool,
+                                        const vk::Queue &copyQueue,
+                                        void *pixels,
+                                        size_t w,
+                                        size_t h,
+                                        vk::Format format,
+                                        vk::Image *image,
+                                        vk::DeviceMemory *imageMemory)
+{
+    createImage(logicalDevice,
+                physicalDevice,
+                w,
+                h,
+                format,
+                vk::ImageTiling::eOptimal,
+                vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+                vk::MemoryPropertyFlagBits::eDeviceLocal,
+                image,
+                imageMemory);
 
     return updateTextureImage(logicalDevice, physicalDevice, commandPool, copyQueue, pixels, w, h, format, *image);
 }
@@ -136,12 +153,16 @@ vk::CommandBuffer e172vp::Font::beginSingleTimeCommands(const vk::Device &logica
     allocInfo.commandBufferCount = 1;
 
     vk::CommandBuffer commandBuffer;
-    logicalDevice.allocateCommandBuffers(&allocInfo, &commandBuffer);
+    if (logicalDevice.allocateCommandBuffers(&allocInfo, &commandBuffer) != vk::Result::eSuccess) {
+        e172::Debug::warning("failed to allocate command buffers");
+    }
 
     vk::CommandBufferBeginInfo beginInfo{};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 
-    commandBuffer.begin(&beginInfo);
+    if (commandBuffer.begin(&beginInfo) != vk::Result::eSuccess) {
+        e172::Debug::warning("failed to begin command buffer");
+    }
 
     return commandBuffer;
 }
@@ -153,7 +174,9 @@ void e172vp::Font::endSingleTimeCommands(const vk::Device &logicalDevice, const 
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    queue.submit(1, &submitInfo, vk::Fence());
+    if (queue.submit(1, &submitInfo, vk::Fence()) != vk::Result::eSuccess) {
+        e172::Debug::warning("failed to submit queue");
+    }
     queue.waitIdle();
 
     logicalDevice.freeCommandBuffers(commandPool, 1, &commandBuffer);

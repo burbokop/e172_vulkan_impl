@@ -3,6 +3,8 @@
 #include "extensiontools.h"
 #include "stringvector.h"
 
+#include <e172/debug.h>
+
 bool e172vp::Hardware::isDeviceSuitable(vk::PhysicalDevice physicalDevice, vk::SurfaceKHR surface, const std::vector<std::string> &requiredDeviceExtensions) {
     const auto missing = StringVector::subtract(requiredDeviceExtensions, Extension::presentDeviceExtensions(physicalDevice));
     bool swapChainAdequate = false;
@@ -16,14 +18,20 @@ bool e172vp::Hardware::isDeviceSuitable(vk::PhysicalDevice physicalDevice, vk::S
 
 e172vp::Hardware::SwapChainSupportDetails e172vp::Hardware::querySwapChainSupport(const vk::PhysicalDevice &physicalDevice, vk::SurfaceKHR surface) {
     SwapChainSupportDetails details;
-    physicalDevice.getSurfaceCapabilitiesKHR(surface, &details.capabilities);
+    if (physicalDevice.getSurfaceCapabilitiesKHR(surface, &details.capabilities)
+        != vk::Result::eSuccess) {
+        e172::Debug::warning("failed to get surface capabilities");
+    }
 
     //GETTING FORMATS
     uint32_t formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
     if (formatCount != 0) {
         details.formats.resize(formatCount);
-        physicalDevice.getSurfaceFormatsKHR(surface, &formatCount, details.formats.data());
+        if (physicalDevice.getSurfaceFormatsKHR(surface, &formatCount, details.formats.data())
+            != vk::Result::eSuccess) {
+            e172::Debug::warning("failed to get surface formats");
+        }
     }
     //GETTING FORMATS END
 
@@ -32,7 +40,12 @@ e172vp::Hardware::SwapChainSupportDetails e172vp::Hardware::querySwapChainSuppor
     vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
     if (presentModeCount != 0) {
         details.presentModes.resize(presentModeCount);
-        physicalDevice.getSurfacePresentModesKHR(surface, &presentModeCount, details.presentModes.data());
+        if (physicalDevice.getSurfacePresentModesKHR(surface,
+                                                     &presentModeCount,
+                                                     details.presentModes.data())
+            != vk::Result::eSuccess) {
+            e172::Debug::warning("failed to get surface present modes");
+        }
     }
     //GETTING PRESENT MODES END
 
@@ -58,7 +71,10 @@ e172vp::Hardware::QueueFamilies e172vp::Hardware::queryQueueFamilies(const vk::P
     int i = 0;
     for (const auto& queueFamily : queueFamilies) {
         vk::Bool32 presentSupport = false;
-        physicalDevice.getSurfaceSupportKHR(i, surface, &presentSupport);
+        if (physicalDevice.getSurfaceSupportKHR(i, surface, &presentSupport)
+            != vk::Result::eSuccess) {
+            e172::Debug::warning("failed to get surface support");
+        }
 
         if(presentSupport)
             result.m_presentFamily = i;

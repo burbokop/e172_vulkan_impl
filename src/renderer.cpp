@@ -175,17 +175,14 @@ size_t Renderer::presentEffectCount() const
     return 0;
 }
 
-std::string Renderer::presentEffectName(size_t index) const
+std::string Renderer::presentEffectName(std::size_t) const
 {
     return "";
 }
 
-void Renderer::drawEffect(size_t index, const e172::VariantVector &args) {}
+void Renderer::drawEffect(std::size_t, const e172::VariantVector &) {}
 
-void Renderer::fill(uint32_t color)
-{
-    (void)color;
-}
+void Renderer::fill(std::uint32_t) {}
 
 void Renderer::drawPixel(const e172::Vector<double> &point, uint32_t color)
 {
@@ -208,7 +205,7 @@ void Renderer::drawLine(const e172::Vector<double> &point0,
 void Renderer::drawRect(const e172::Vector<double> &point0,
                         const e172::Vector<double> &point1,
                         uint32_t color,
-                        const e172::ShapeFormat &format)
+                        const e172::ShapeFormat &)
 {
     Reciept reciept;
     reciept.position0 = transformedPosition(point0);
@@ -335,6 +332,6 @@ e172::Vector<double> Renderer::screenSize() const
     return m_resolution;
 }
 
-void Renderer::setDepth(int64_t depth) {}
+void Renderer::setDepth(int64_t) {}
 
 } // namespace e172::impl::vulkan

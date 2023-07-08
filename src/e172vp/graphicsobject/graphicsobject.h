@@ -14,7 +14,7 @@
 namespace e172vp {
 
 class GraphicsObject {
-    VkDebugReportCallbackEXT m_debugReportCallbackObject;
+    //VkDebugReportCallbackEXT m_debugReportCallbackObject;
 
     vk::Instance m_vulkanInstance;
     vk::SurfaceKHR m_surface;

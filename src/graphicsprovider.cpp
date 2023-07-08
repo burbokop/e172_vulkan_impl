@@ -24,42 +24,38 @@ bool GraphicsProvider::isValid() const
     return m_renderer->isValid();
 }
 
-e172::Image GraphicsProvider::loadImage(const std::string &path) const
+e172::Image GraphicsProvider::loadImage(const std::string &) const
 {
     return e172::Image();
 }
 
-e172::Image GraphicsProvider::createImage(int width, int height) const
+e172::Image GraphicsProvider::createImage(int, int) const
 {
     return e172::Image();
 }
 
-void GraphicsProvider::loadFont(const std::string &name, const std::string &path) {}
+void GraphicsProvider::loadFont(const std::string &, const std::string &) {}
 
 e172::Image GraphicsProvider::createImage(
-    int width,
-    int height,
-    const e172::AbstractGraphicsProvider::ImageInitFunction &imageInitFunction) const
+    int, int, const e172::AbstractGraphicsProvider::ImageInitFunction &) const
 {
     return e172::Image();
 }
 
 e172::Image GraphicsProvider::createImage(
-    int width,
-    int height,
-    const e172::AbstractGraphicsProvider::ImageInitFunctionExt &imageInitFunction) const
+    int, int, const e172::AbstractGraphicsProvider::ImageInitFunctionExt &) const
 {
     return e172::Image();
 }
 
-bool GraphicsProvider::fontLoaded(const std::string &name) const
+bool GraphicsProvider::fontLoaded(const std::string &) const
 {
     return false;
 }
 
-void GraphicsProvider::destructImage(e172::SharedContainer::DataPtr ptr) const {}
+void GraphicsProvider::destructImage(e172::SharedContainer::DataPtr) const {}
 
-e172::SharedContainer::Ptr GraphicsProvider::imageBitMap(e172::SharedContainer::DataPtr ptr) const
+e172::SharedContainer::Ptr GraphicsProvider::imageBitMap(e172::SharedContainer::DataPtr) const
 {
     return nullptr;
 }
@@ -69,21 +65,18 @@ bool GraphicsProvider::saveImage(e172::SharedContainer::DataPtr, const std::stri
     return false;
 }
 
-e172::SharedContainer::DataPtr GraphicsProvider::imageFragment(e172::SharedContainer::DataPtr ptr,
-                                                               std::size_t x,
-                                                               std::size_t y,
-                                                               std::size_t &w,
-                                                               std::size_t &h) const
+e172::SharedContainer::DataPtr GraphicsProvider::imageFragment(
+    e172::SharedContainer::DataPtr, std::size_t, std::size_t, std::size_t &, std::size_t &) const
 {
     return nullptr;
 }
 
-e172::SharedContainer::DataPtr GraphicsProvider::blitImages(e172::SharedContainer::DataPtr ptr0,
-                                                            e172::SharedContainer::DataPtr ptr1,
-                                                            int x,
-                                                            int y,
-                                                            std::size_t &w,
-                                                            std::size_t &h) const
+e172::SharedContainer::DataPtr GraphicsProvider::blitImages(e172::SharedContainer::DataPtr,
+                                                            e172::SharedContainer::DataPtr,
+                                                            int,
+                                                            int,
+                                                            std::size_t &,
+                                                            std::size_t &) const
 {
     return nullptr;
 }

@@ -7,7 +7,7 @@
 
 namespace e172vp {
     class BootstrapObject;
-    class Mesh;
+    struct Mesh;
     class AbstractVertexObject;
 }
 
@@ -108,7 +108,7 @@ public:
     virtual e172::Vector<double> resolution() const override;
     virtual e172::Vector<double> screenSize() const override;
     virtual void setDepth(int64_t depth) override;
-    virtual void modifyBitmap(const std::function<void(e172::Color *)> &modifier) override
+    virtual void modifyBitmap(const std::function<void(e172::Color *)> &) override
     {
         // TODO
     }

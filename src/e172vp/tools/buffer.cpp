@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+#include <e172/debug.h>
+
 vk::Device e172vp::Buffer::logicalDevice(const e172vp::GraphicsObject *graphicsObject) {
     return graphicsObject->logicalDevice();
 }
@@ -65,12 +67,16 @@ void e172vp::Buffer::copyBuffer(const vk::Device &logicalDevice, const vk::Comma
     allocInfo.commandBufferCount = 1;
 
     vk::CommandBuffer commandBuffer;
-    logicalDevice.allocateCommandBuffers(&allocInfo, &commandBuffer);
+    if (logicalDevice.allocateCommandBuffers(&allocInfo, &commandBuffer) != vk::Result::eSuccess) {
+        e172::Debug::warning("failed to allocate command buffers");
+    }
 
     vk::CommandBufferBeginInfo beginInfo{};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 
-    commandBuffer.begin(&beginInfo);
+    if (commandBuffer.begin(&beginInfo) != vk::Result::eSuccess) {
+        e172::Debug::warning("failed to begin command buffer");
+    }
 
     vk::BufferCopy copyRegion{};
     copyRegion.size = size;
@@ -82,7 +88,9 @@ void e172vp::Buffer::copyBuffer(const vk::Device &logicalDevice, const vk::Comma
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    graphicsQueue.submit(1, &submitInfo, vk::Fence());
+    if (graphicsQueue.submit(1, &submitInfo, vk::Fence()) != vk::Result::eSuccess) {
+        e172::Debug::warning("failed to submit graphics queue");
+    }
     graphicsQueue.waitIdle();
 
     logicalDevice.freeCommandBuffers(commandPool, 1, &commandBuffer);

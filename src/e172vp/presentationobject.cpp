@@ -2,12 +2,13 @@
 #include "pipeline.h"
 #include "presentationobject.h"
 
-#include <iostream>
-#include "tools/stringvector.h"
-#include <math.h>
-#include <chrono>
-#include <glm/gtc/matrix_transform.hpp>
 #include "tools/buffer.h"
+#include "tools/stringvector.h"
+#include <chrono>
+#include <e172/debug.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
+#include <math.h>
 
 e172vp::PresentationObject::PresentationObject(const GraphicsObjectCreateInfo &graphicsInstanceCreateInfo) {
     m_graphicsObject = new GraphicsObject(graphicsInstanceCreateInfo);
@@ -153,7 +154,9 @@ void e172vp::PresentationObject::proceedCommandBuffers() {
         const auto extent = m_graphicsObject->swapChainSettings().extent;
 
         vk::CommandBufferBeginInfo commandBufferBeginInfo;
-        commandBuffer.begin(&commandBufferBeginInfo);
+        if (commandBuffer.begin(&commandBufferBeginInfo) != vk::Result::eSuccess) {
+            e172::Debug::warning("failed to begin command buffer");
+        }
 
         const vk::ClearValue clearColor = vk::ClearColorValue(std::array<float, 4> {
                                                                   0x1a / 256.,

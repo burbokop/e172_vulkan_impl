@@ -17,8 +17,11 @@ e172vp::TexturedVertexObject::TexturedVertexObject(int textureWidth, int texture
     m_textureHeight = textureHeight;
 }
 
-
-void e172vp::TexturedVertexObject::initialize(const e172vp::GraphicsObject *graphicsObject, int frameCount, const e172vp::DescriptorSetLayout *objectDSL, const e172vp::DescriptorSetLayout *samplerDSL) {
+void e172vp::TexturedVertexObject::initialize(const e172vp::GraphicsObject *graphicsObject,
+                                              int,
+                                              const e172vp::DescriptorSetLayout *objectDSL,
+                                              const e172vp::DescriptorSetLayout *samplerDSL)
+{
     Buffer::createVertexBuffer(graphicsObject, m_vertices, &m_vertexBuffer, &m_vertexBufferMemory);
     Buffer::createIndexBuffer(graphicsObject, m_indices, &m_indexBuffer, &m_indexBufferMemory);
 
