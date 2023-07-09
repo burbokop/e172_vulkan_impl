@@ -7,7 +7,7 @@
 
 namespace e172vp {
     class BootstrapObject;
-    struct Mesh;
+    class Mesh;
     class AbstractVertexObject;
 }
 

@@ -3,6 +3,8 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_vulkan.h>
 #include <e172/additional.h>
+#include <e172/utility/buffer.h>
+#include <e172/utility/resource.h>
 #include <fstream>
 
 e172vp::PresentationObject * e172vp::BootstrapObject::presentationObject() const {
@@ -17,7 +19,11 @@ e172vp::ExternalTexVertexObject *e172vp::BootstrapObject::addExternalTexVertexOb
 }
 
 e172vp::ExternalTexVertexObject *e172vp::BootstrapObject::addExternalTexVertexObject(const e172vp::Mesh &mesh) {
-    auto obj = m_presentationObject->addVertexObject<ExternalTexVertexObject>(Vertex::fromGlm(mesh.vertices, mesh.uvMap), mesh.vertexIndices, font->character('G').imageView());
+    auto obj = m_presentationObject
+                   ->addVertexObject<ExternalTexVertexObject>(Vertex::fromGlm(mesh.vertices(),
+                                                                              mesh.uvMap()),
+                                                              mesh.vertexIndices(),
+                                                              font->character('G').imageView());
     obj->setPipeline(pipeline);
     obj->setBindGlobalDescriptorSet(true);
     return obj;
@@ -68,7 +74,20 @@ bool e172vp::BootstrapObject::isValid() const {
     return m_isValid;
 }
 
-e172vp::BootstrapObject::BootstrapObject(const std::string &assetFolder) {
+static std::vector<char> resourceToCharVec(const e172::ByteRange &range)
+{
+    return std::vector<char>(reinterpret_cast<const char *>(range.begin()),
+                             reinterpret_cast<const char *>(range.end()));
+}
+
+const e172::ByteRange vertUniformResource = e172_load_resource(resources_shaders_vert_uniform_spv);
+const e172::ByteRange fragSamplerResource = e172_load_resource(resources_shaders_frag_sampler_spv);
+const e172::ByteRange vertLinestripResource = e172_load_resource(
+    resources_shaders_vert_linestrip_spv);
+const e172::ByteRange fragInterResource = e172_load_resource(resources_shaders_frag_inter_spv);
+
+e172vp::BootstrapObject::BootstrapObject(const std::string &assetFolder)
+{
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
     m_window = SDL_CreateWindow("dfdf", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_VULKAN);
@@ -90,33 +109,26 @@ e172vp::BootstrapObject::BootstrapObject(const std::string &assetFolder) {
 
     m_presentationObject = new PresentationObject(graphicsObjectCreateInfo);
 
+    pipeline = m_presentationObject->createPipeline(0,
+                                                    PresentationObject::GlobalDSL
+                                                        | PresentationObject::SamplerDSL
+                                                        | PresentationObject::PerObjectDSL,
+                                                    resourceToCharVec(vertUniformResource),
+                                                    resourceToCharVec(fragSamplerResource),
+                                                    vk::PrimitiveTopology::eTriangleList);
 
-    pipeline = m_presentationObject->createPipeline(
-                0,
-                PresentationObject::GlobalDSL | PresentationObject::SamplerDSL | PresentationObject::PerObjectDSL,
-                readFile(e172::Additional::constrainPath(assetFolder + "/shaders/vert_uniform.spv")),
-                readFile(e172::Additional::constrainPath(assetFolder + "/shaders/frag_sampler.spv")),
-                vk::PrimitiveTopology::eTriangleList
-                );
+    pipeline2 = m_presentationObject->createPipeline(1,
+                                                     PresentationObject::GlobalDSL,
+                                                     resourceToCharVec(vertLinestripResource),
+                                                     resourceToCharVec(fragInterResource),
+                                                     vk::PrimitiveTopology::eLineStrip);
 
-
-    pipeline2 = m_presentationObject->createPipeline(
-                1,
-                PresentationObject::GlobalDSL,
-                readFile(e172::Additional::constrainPath(assetFolder + "/shaders/vert_linestrip.spv")),
-                readFile(e172::Additional::constrainPath(assetFolder + "/shaders/frag_inter.spv")),
-                vk::PrimitiveTopology::eLineStrip
-                );
-
-
-    font = new Font(
-                m_presentationObject->graphicsObject()->logicalDevice(),
-                m_presentationObject->graphicsObject()->physicalDevice(),
-                m_presentationObject->graphicsObject()->commandPool(),
-                m_presentationObject->graphicsObject()->graphicsQueue(),
-                e172::Additional::constrainPath(assetFolder + "/fonts/ZCOOL.ttf"),
-                128
-                );
+    font = new Font(m_presentationObject->graphicsObject()->logicalDevice(),
+                    m_presentationObject->graphicsObject()->physicalDevice(),
+                    m_presentationObject->graphicsObject()->commandPool(),
+                    m_presentationObject->graphicsObject()->graphicsQueue(),
+                    e172::Additional::constrainPath(assetFolder + "/fonts/ZCOOL.ttf"),
+                    128);
 
     m_presentationObject->setUiImage(font->character('a').image());
 }

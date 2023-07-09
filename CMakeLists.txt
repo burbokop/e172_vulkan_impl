@@ -21,7 +21,7 @@ endif()
 
 include(GNUInstallDirs)
 
-add_library(e172_vulkan_impl SHARED)
+add_library(${PROJECT_NAME} SHARED)
 
 set(INSTALL_NAMESPACE e172)
 set(INSTALL_IMPL_NAMESPACE vulkan)
@@ -31,7 +31,7 @@ set(INSTALLDIR
 )
 
 target_sources(
-  e172_vulkan_impl
+  ${PROJECT_NAME}
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/graphicsprovider.h>
          $<INSTALL_INTERFACE:${INSTALLDIR}/graphicsprovider.h>
          $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/renderer.h>
@@ -92,21 +92,43 @@ if(ENABLE_FIND_E172_PACKAGE)
   find_package(e172 REQUIRED)
 endif()
 
+e172_add_resources(
+  resources
+  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_inter.frag
+  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_inter.spv
+  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_sampler.frag
+  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_sampler.spv
+  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_linestrip.spv
+  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_linestrip.vert
+  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_uniform.spv
+  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_uniform.vert
+  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/cube.obj
+  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship.obj
+  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship1.mtl
+  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship1.obj
+  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.mtl
+  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.obj)
+
+target_sources(
+  ${PROJECT_NAME}
+  PUBLIC
+  PRIVATE ${resources})
+
 if($ENV{WITH_MAGURA})
   find_package(magura REQUIRED)
-  target_connect_magura(e172_vulkan_impl)
-  target_link_libraries(e172_vulkan_impl Vulkan::Vulkan freetype)
+  target_connect_magura(${PROJECT_NAME})
+  target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan freetype)
 else($ENV{WITH_MAGURA})
-  target_link_libraries(e172_vulkan_impl PRIVATE Vulkan::Vulkan SDL2 freetype)
+  target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan SDL2 freetype)
 endif($ENV{WITH_MAGURA})
 
 if(ENABLE_FIND_E172_PACKAGE)
-  target_link_libraries(e172_sdl_impl e172::e172)
+  target_link_libraries(${PROJECT_NAME} PRIVATE e172::e172)
 else()
-  target_link_libraries(e172_sdl_impl e172)
+  target_link_libraries(${PROJECT_NAME} PRIVATE e172)
 endif()
 
-target_include_directories(e172_vulkan_impl
+target_include_directories(${PROJECT_NAME}
                            PRIVATE $<BUILD_INTERFACE:/usr/include/freetype2>)
 
 if((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL

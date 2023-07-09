@@ -4,7 +4,11 @@
 #include "e172vp/tools/mesh.h"
 #include <SDL2/SDL_image.h>
 #include <e172/additional.h>
+#include <e172/utility/resource.h>
 #include <glm/gtc/matrix_transform.hpp>
+
+const e172::ByteRange ship1MeshResource = e172_load_resource(resources_meshes_ship1_obj);
+const e172::ByteRange ship2MeshResource = e172_load_resource(resources_meshes_ship2_obj);
 
 namespace e172::impl::vulkan {
 
@@ -14,26 +18,24 @@ Renderer::Renderer(const std::vector<std::string> &args)
         const auto assetFolder = e172::Additional::absolutePath("./assets", args[0]);
         m_bootstrapObject = new e172vp::BootstrapObject(assetFolder);
 
-        m_mesh0 = new e172vp::Mesh(e172vp::Mesh::load(e172::Additional::constrainPath(assetFolder + "/meshes/ship1.obj")));
-        m_mesh1 = new e172vp::Mesh(e172vp::Mesh::load(e172::Additional::constrainPath(assetFolder + "/meshes/ship2.obj")));
+        m_mesh0 = new e172vp::Mesh(e172vp::Mesh::parseObj(ship1MeshResource).unwrap());
+        m_mesh1 = new e172vp::Mesh(e172vp::Mesh::parseObj(ship2MeshResource).unwrap());
         m_plateMesh = new e172vp::Mesh(e172vp::Mesh::plate(0.01));
 
         m_lineMesh = new e172vp::Mesh();
-        m_lineMesh->vertices = { { }, { } };
-        m_lineMesh->vertexIndices = { 0, 1 };
-        m_lineMesh->useTexture = false;
+        m_lineMesh->m_vertices = {{}, {}};
+        m_lineMesh->m_vertexIndices = {0, 1};
+        m_lineMesh->m_hasTexture = false;
 
         m_rectMesh = new e172vp::Mesh();
-        m_rectMesh->vertices = { { }, { }, { }, { } };
-        m_rectMesh->vertexIndices = { 0, 1, 2, 2, 3, 0 };
-        m_rectMesh->useTexture = false;
-
+        m_rectMesh->m_vertices = {{}, {}, {}, {}};
+        m_rectMesh->m_vertexIndices = {0, 1, 2, 2, 3, 0};
+        m_rectMesh->m_hasTexture = false;
 
         m_circleMesh = new e172vp::Mesh();
-        m_circleMesh->vertices = { { }, { }, { }, { } };
-        m_circleMesh->vertexIndices = { 0, 1, 2, 2, 3, 0 };
-        m_circleMesh->useTexture = false;
-
+        m_circleMesh->m_vertices = {{}, {}, {}, {}};
+        m_circleMesh->m_vertexIndices = {0, 1, 2, 2, 3, 0};
+        m_circleMesh->m_hasTexture = false;
 
         //m_lineMesh = new e172vp::Mesh();
         //m_lineMesh->vertices = {
@@ -44,10 +46,7 @@ Renderer::Renderer(const std::vector<std::string> &args)
         //    0, 1
         //};
 
-
         uiSurface = IMG_Load(e172::Additional::absolutePath("../rewiev.png", args[0]).c_str());
-
-
     }
 }
 
@@ -70,10 +69,12 @@ bool Renderer::update()
                 obj = list.front();
                 list.remove(obj);
             } else {
-                if(reciept.mesh->useTexture) {
+                if (reciept.mesh->hasTexture()) {
                     obj = m_bootstrapObject->addExternalTexVertexObject(*reciept.mesh);
                 } else {
-                    obj = m_bootstrapObject->addWireVertexObject(e172vp::Vertex::fromGlm(reciept.mesh->vertices), reciept.mesh->vertexIndices);
+                    obj = m_bootstrapObject->addWireVertexObject(e172vp::Vertex::fromGlm(
+                                                                     reciept.mesh->vertices()),
+                                                                 reciept.mesh->vertexIndices());
                 }
                 if(!reciept.modifyVertexBuffer) {
                     if(auto extTexObj = dynamic_cast<e172vp::ExternalTexVertexObject*>(obj)) {
@@ -120,7 +121,8 @@ bool Renderer::update()
                                          });
                     } else if(reciept.mesh == m_plateMesh) {
                         const auto plate = e172vp::Mesh::plate({ reciept.position0.float32X(), reciept.position0.float32Y() }, { reciept.position1.float32X(), reciept.position1.float32Y() });
-                        wireObj->setVertices(e172vp::Vertex::fromGlm(plate.vertices, plate.uvMap));
+                        wireObj->setVertices(
+                            e172vp::Vertex::fromGlm(plate.vertices(), plate.uvMap()));
                     }
                 }
             } else {
