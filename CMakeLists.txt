@@ -92,6 +92,9 @@ if(ENABLE_FIND_E172_PACKAGE)
   find_package(e172 REQUIRED)
 endif()
 
+file(DOWNLOAD https://cdn-icons-png.flaticon.com/512/2598/2598640.png
+     ${CMAKE_CURRENT_BINARY_DIR}/resources/images/banana.png SHOW_PROGRESS)
+
 e172_add_resources(
   resources
   ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_inter.frag
@@ -107,7 +110,8 @@ e172_add_resources(
   ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship1.mtl
   ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship1.obj
   ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.mtl
-  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.obj)
+  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.obj
+  ${CMAKE_CURRENT_BINARY_DIR}/resources/images/banana.png)
 
 target_sources(
   ${PROJECT_NAME}

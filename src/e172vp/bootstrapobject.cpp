@@ -1,32 +1,56 @@
 #include "bootstrapobject.h"
 
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_vulkan.h>
 #include <e172/additional.h>
+#include <e172/debug.h>
 #include <e172/utility/buffer.h>
 #include <e172/utility/resource.h>
 #include <fstream>
 
-e172vp::PresentationObject * e172vp::BootstrapObject::presentationObject() const {
+const e172::ByteRange vertUniformResource = e172_load_resource(resources_shaders_vert_uniform_spv);
+const e172::ByteRange fragSamplerResource = e172_load_resource(resources_shaders_frag_sampler_spv);
+const e172::ByteRange vertLinestripResource = e172_load_resource(
+    resources_shaders_vert_linestrip_spv);
+const e172::ByteRange fragInterResource = e172_load_resource(resources_shaders_frag_inter_spv);
+
+e172vp::PresentationObject *e172vp::BootstrapObject::presentationObject() const
+{
     return m_presentationObject;
 }
 
 e172vp::ExternalTexVertexObject *e172vp::BootstrapObject::addExternalTexVertexObject(const std::vector<e172vp::Vertex> &vertices, const std::vector<uint32_t> &indices) {
-    auto obj = m_presentationObject->addVertexObject<ExternalTexVertexObject>(vertices, indices, font->character('G').imageView());
-    obj->setPipeline(pipeline);
-    obj->setBindGlobalDescriptorSet(true);
-    return obj;
+    if (const auto f = font("")) {
+        auto obj = m_presentationObject
+                       ->addVertexObject<ExternalTexVertexObject>(vertices,
+                                                                  indices,
+                                                                  f->character('G').imageView());
+        obj->setPipeline(pipeline);
+        obj->setBindGlobalDescriptorSet(true);
+        return obj;
+    } else {
+        e172::Debug::warning("Can not find default font");
+        return nullptr;
+    }
 }
 
-e172vp::ExternalTexVertexObject *e172vp::BootstrapObject::addExternalTexVertexObject(const e172vp::Mesh &mesh) {
-    auto obj = m_presentationObject
-                   ->addVertexObject<ExternalTexVertexObject>(Vertex::fromGlm(mesh.vertices(),
-                                                                              mesh.uvMap()),
-                                                              mesh.vertexIndices(),
-                                                              font->character('G').imageView());
-    obj->setPipeline(pipeline);
-    obj->setBindGlobalDescriptorSet(true);
-    return obj;
+e172vp::ExternalTexVertexObject *e172vp::BootstrapObject::addExternalTexVertexObject(
+    const e172vp::Mesh &mesh)
+{
+    if (const auto f = font("")) {
+        auto obj = m_presentationObject
+                       ->addVertexObject<ExternalTexVertexObject>(Vertex::fromGlm(mesh.vertices(),
+                                                                                  mesh.uvMap()),
+                                                                  mesh.vertexIndices(),
+                                                                  f->character('G').imageView());
+        obj->setPipeline(pipeline);
+        obj->setBindGlobalDescriptorSet(true);
+        return obj;
+    } else {
+        e172::Debug::warning("Can not find default font");
+        return nullptr;
+    }
 }
 
 e172vp::WireVertexObject *e172vp::BootstrapObject::addWireVertexObject(const std::vector<e172vp::Vertex> &vertices, const std::vector<uint32_t> &indices) {
@@ -74,25 +98,49 @@ bool e172vp::BootstrapObject::isValid() const {
     return m_isValid;
 }
 
+std::shared_ptr<e172vp::Font> e172vp::BootstrapObject::font(const std::string &name) const
+{
+    auto it = m_fonts.find(name);
+    if (it == m_fonts.end()) {
+        const auto pathIt = m_fontPaths->find(name);
+        if (pathIt != m_fontPaths->end()) {
+            it = m_fonts.insert(
+                it,
+                {name,
+                 std::make_shared<Font>(m_presentationObject->graphicsObject()->logicalDevice(),
+                                        m_presentationObject->graphicsObject()->physicalDevice(),
+                                        m_presentationObject->graphicsObject()->commandPool(),
+                                        m_presentationObject->graphicsObject()->graphicsQueue(),
+                                        pathIt->second,
+                                        128)});
+        }
+    }
+    if (it != m_fonts.end()) {
+        return it->second;
+    }
+    return nullptr;
+}
+
 static std::vector<char> resourceToCharVec(const e172::ByteRange &range)
 {
     return std::vector<char>(reinterpret_cast<const char *>(range.begin()),
                              reinterpret_cast<const char *>(range.end()));
 }
 
-const e172::ByteRange vertUniformResource = e172_load_resource(resources_shaders_vert_uniform_spv);
-const e172::ByteRange fragSamplerResource = e172_load_resource(resources_shaders_frag_sampler_spv);
-const e172::ByteRange vertLinestripResource = e172_load_resource(
-    resources_shaders_vert_linestrip_spv);
-const e172::ByteRange fragInterResource = e172_load_resource(resources_shaders_frag_inter_spv);
-
-e172vp::BootstrapObject::BootstrapObject(const std::string &assetFolder)
+e172vp::BootstrapObject::BootstrapObject(
+    const std::string &title,
+    const e172::Vector<uint32_t> &resolution,
+    const std::map<std::string, std::filesystem::path> *fontPaths)
+    : m_fontPaths(fontPaths)
 {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
-    m_window = SDL_CreateWindow("dfdf", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIDTH, HEIGHT, SDL_WINDOW_VULKAN);
-
-
+    m_window = SDL_CreateWindow(title.c_str(),
+                                SDL_WINDOWPOS_CENTERED,
+                                SDL_WINDOWPOS_CENTERED,
+                                resolution.x(),
+                                resolution.y(),
+                                SDL_WINDOW_VULKAN);
 
     GraphicsObjectCreateInfo graphicsObjectCreateInfo;
     graphicsObjectCreateInfo.setRequiredExtensions(sdlExtensions(m_window));
@@ -123,14 +171,11 @@ e172vp::BootstrapObject::BootstrapObject(const std::string &assetFolder)
                                                      resourceToCharVec(fragInterResource),
                                                      vk::PrimitiveTopology::eLineStrip);
 
-    font = new Font(m_presentationObject->graphicsObject()->logicalDevice(),
-                    m_presentationObject->graphicsObject()->physicalDevice(),
-                    m_presentationObject->graphicsObject()->commandPool(),
-                    m_presentationObject->graphicsObject()->graphicsQueue(),
-                    e172::Additional::constrainPath(assetFolder + "/fonts/ZCOOL.ttf"),
-                    128);
-
-    m_presentationObject->setUiImage(font->character('a').image());
+    if (const auto f = font("")) {
+        m_presentationObject->setUiImage(f->character('a').image());
+    } else {
+        e172::Debug::warning("Can not find default font");
+    }
 }
 
 e172vp::BootstrapObject::~BootstrapObject() {

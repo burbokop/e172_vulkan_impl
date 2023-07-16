@@ -1,9 +1,10 @@
 #ifndef FONT_H
 #define FONT_H
 
+#include <filesystem>
 #include <glm/glm.hpp>
-#include <string>
 #include <map>
+#include <string>
 #include <vulkan/vulkan.hpp>
 
 namespace e172vp {
@@ -45,9 +46,20 @@ public:
     static void transitionImageLayout(const vk::Device &logicalDevice, const vk::CommandPool &commandPool, const vk::Queue &queue, vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
     static vk::CommandBuffer beginSingleTimeCommands(const vk::Device &logicalDevice, const vk::CommandPool &commandPool);
     static void endSingleTimeCommands(const vk::Device &logicalDevice, const vk::CommandPool &commandPool, const vk::Queue &queue, vk::CommandBuffer commandBuffer);
-    static void copyBufferToImage(const vk::Device &logicalDevice, const vk::CommandPool &commandPool, const vk::Queue &queue, vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height);
+    static void copyBufferToImage(const vk::Device &logicalDevice,
+                                  const vk::CommandPool &commandPool,
+                                  const vk::Queue &queue,
+                                  vk::Buffer buffer,
+                                  vk::Image image,
+                                  uint32_t width,
+                                  uint32_t height);
 
-    Font(const vk::Device &logicalDevice, const vk::PhysicalDevice &physicalDevice, const vk::CommandPool &commandPool, const vk::Queue &copyQueue, const std::string &path, size_t size);
+    Font(const vk::Device &logicalDevice,
+         const vk::PhysicalDevice &physicalDevice,
+         const vk::CommandPool &commandPool,
+         const vk::Queue &copyQueue,
+         const std::filesystem::path &path,
+         size_t size);
 
     Font(const Font&) = delete;
     Font& operator=(const Font&) = delete;

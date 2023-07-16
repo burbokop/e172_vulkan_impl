@@ -205,7 +205,13 @@ void e172vp::Font::copyBufferToImage(const vk::Device &logicalDevice, const vk::
     endSingleTimeCommands(logicalDevice, commandPool, queue, commandBuffer);
 }
 
-e172vp::Font::Font(const vk::Device &logicalDevice, const vk::PhysicalDevice &physicalDevice, const vk::CommandPool &commandPool, const vk::Queue &copyQueue, const std::string &path, size_t size) {
+e172vp::Font::Font(const vk::Device &logicalDevice,
+                   const vk::PhysicalDevice &physicalDevice,
+                   const vk::CommandPool &commandPool,
+                   const vk::Queue &copyQueue,
+                   const std::filesystem::path &path,
+                   size_t size)
+{
     m_logicalDevice = logicalDevice;
 
     FT_Library ft;

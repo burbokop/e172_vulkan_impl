@@ -9,45 +9,49 @@
 
 const e172::ByteRange ship1MeshResource = e172_load_resource(resources_meshes_ship1_obj);
 const e172::ByteRange ship2MeshResource = e172_load_resource(resources_meshes_ship2_obj);
+const e172::ByteRange bananaImageResource = e172_load_resource(resources_images_banana_png);
 
 namespace e172::impl::vulkan {
 
-Renderer::Renderer(const std::vector<std::string> &args)
+Renderer::Renderer(Private,
+                   const std::string &title,
+                   const e172::Vector<uint32_t> &resolution,
+                   const std::map<std::string, std::filesystem::path> *fontPaths)
 {
-    if(args.size() > 0) {
-        const auto assetFolder = e172::Additional::absolutePath("./assets", args[0]);
-        m_bootstrapObject = new e172vp::BootstrapObject(assetFolder);
+    m_bootstrapObject = new e172vp::BootstrapObject(title, resolution, fontPaths);
 
-        m_mesh0 = new e172vp::Mesh(e172vp::Mesh::parseObj(ship1MeshResource).unwrap());
-        m_mesh1 = new e172vp::Mesh(e172vp::Mesh::parseObj(ship2MeshResource).unwrap());
-        m_plateMesh = new e172vp::Mesh(e172vp::Mesh::plate(0.01));
+    m_mesh0 = new e172vp::Mesh(e172vp::Mesh::parseObj(ship1MeshResource).unwrap());
+    m_mesh1 = new e172vp::Mesh(e172vp::Mesh::parseObj(ship2MeshResource).unwrap());
+    m_plateMesh = new e172vp::Mesh(e172vp::Mesh::plate(0.01));
 
-        m_lineMesh = new e172vp::Mesh();
-        m_lineMesh->m_vertices = {{}, {}};
-        m_lineMesh->m_vertexIndices = {0, 1};
-        m_lineMesh->m_hasTexture = false;
+    m_lineMesh = new e172vp::Mesh();
+    m_lineMesh->m_vertices = {{}, {}};
+    m_lineMesh->m_vertexIndices = {0, 1};
+    m_lineMesh->m_hasTexture = false;
 
-        m_rectMesh = new e172vp::Mesh();
-        m_rectMesh->m_vertices = {{}, {}, {}, {}};
-        m_rectMesh->m_vertexIndices = {0, 1, 2, 2, 3, 0};
-        m_rectMesh->m_hasTexture = false;
+    m_rectMesh = new e172vp::Mesh();
+    m_rectMesh->m_vertices = {{}, {}, {}, {}};
+    m_rectMesh->m_vertexIndices = {0, 1, 2, 2, 3, 0};
+    m_rectMesh->m_hasTexture = false;
 
-        m_circleMesh = new e172vp::Mesh();
-        m_circleMesh->m_vertices = {{}, {}, {}, {}};
-        m_circleMesh->m_vertexIndices = {0, 1, 2, 2, 3, 0};
-        m_circleMesh->m_hasTexture = false;
+    m_circleMesh = new e172vp::Mesh();
+    m_circleMesh->m_vertices = {{}, {}, {}, {}};
+    m_circleMesh->m_vertexIndices = {0, 1, 2, 2, 3, 0};
+    m_circleMesh->m_hasTexture = false;
 
-        //m_lineMesh = new e172vp::Mesh();
-        //m_lineMesh->vertices = {
-        //    {  { tp0.float32X(), tp0.float32Y(), 0 }, { 0., 1., 0. }, {} },
-        //    {  { tp1.float32X(), tp1.float32Y(), 0 }, { 0., 1., 0. }, {} }
-        //};
-        //m_lineMesh->vertexIndices = {
-        //    0, 1
-        //};
+    //m_lineMesh = new e172vp::Mesh();
+    //m_lineMesh->vertices = {
+    //    {  { tp0.float32X(), tp0.float32Y(), 0 }, { 0., 1., 0. }, {} },
+    //    {  { tp1.float32X(), tp1.float32Y(), 0 }, { 0., 1., 0. }, {} }
+    //};
+    //m_lineMesh->vertexIndices = {
+    //    0, 1
+    //};
 
-        uiSurface = IMG_Load(e172::Additional::absolutePath("../rewiev.png", args[0]).c_str());
-    }
+    //bananaImageResource;
+
+    m_uiSurface = IMG_LoadPNG_RW(
+        SDL_RWFromConstMem(bananaImageResource.begin(), bananaImageResource.size()));
 }
 
 Renderer::~Renderer()
@@ -184,16 +188,16 @@ std::string Renderer::presentEffectName(std::size_t) const
 
 void Renderer::drawEffect(std::size_t, const e172::VariantVector &) {}
 
-void Renderer::fill(std::uint32_t) {}
+void Renderer::fill(Color) {}
 
-void Renderer::drawPixel(const e172::Vector<double> &point, uint32_t color)
+void Renderer::drawPixel(const e172::Vector<double> &point, Color color)
 {
     drawSquare(point, 1, color);
 }
 
 void Renderer::drawLine(const e172::Vector<double> &point0,
                         const e172::Vector<double> &point1,
-                        uint32_t color)
+                        Color color)
 {
     Reciept reciept;
     reciept.position0 = transformedPosition(point0);
@@ -206,7 +210,7 @@ void Renderer::drawLine(const e172::Vector<double> &point0,
 
 void Renderer::drawRect(const e172::Vector<double> &point0,
                         const e172::Vector<double> &point1,
-                        uint32_t color,
+                        Color color,
                         const e172::ShapeFormat &)
 {
     Reciept reciept;
@@ -218,7 +222,7 @@ void Renderer::drawRect(const e172::Vector<double> &point0,
     m_reciepts.push_back(reciept);
 }
 
-void Renderer::drawSquare(const e172::Vector<double> &point, int radius, uint32_t color)
+void Renderer::drawSquare(const e172::Vector<double> &point, double radius, Color color)
 {
     Reciept reciept;
     reciept.position0 = transformedPosition(point - radius);
@@ -229,7 +233,7 @@ void Renderer::drawSquare(const e172::Vector<double> &point, int radius, uint32_
     m_reciepts.push_back(reciept);
 }
 
-void Renderer::drawCircle(const e172::Vector<double> &point, int radius, uint32_t color)
+void Renderer::drawCircle(const e172::Vector<double> &point, double radius, Color color)
 {
     Reciept reciept;
     reciept.position0 = transformedPosition(point - radius);
@@ -242,8 +246,8 @@ void Renderer::drawCircle(const e172::Vector<double> &point, int radius, uint32_
 
 void Renderer::drawDiagonalGrid(const e172::Vector<double> &point0,
                                 const e172::Vector<double> &point1,
-                                int interval,
-                                uint32_t color)
+                                double interval,
+                                Color color)
 {
     (void)point0;
     (void)point1;
@@ -267,7 +271,7 @@ void Renderer::drawImage(const e172::Image &image,
 
 e172::Vector<double> Renderer::drawString(const std::string &string,
                                           const e172::Vector<double> &position,
-                                          uint32_t color,
+                                          Color color,
                                           const e172::TextFormat &format)
 {
     e172::Vector<double> size(string.size() * 8, 8);
@@ -319,17 +323,12 @@ void Renderer::setFullscreen(bool value)
     (void)value;
 }
 
-void Renderer::setResolution(e172::Vector<double> value)
+void Renderer::setResolution(const e172::Vector<uint32_t> &value)
 {
     (void)value;
 }
 
-e172::Vector<double> Renderer::resolution() const
-{
-    return m_resolution;
-}
-
-e172::Vector<double> Renderer::screenSize() const
+e172::Vector<uint32_t> Renderer::resolution() const
 {
     return m_resolution;
 }
