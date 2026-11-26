@@ -1,3 +1,5 @@
+// Copyright 2023 Borys Boiko
+
 #include "font.h"
 #include "graphicsobject/swapchain.h"
 
@@ -6,40 +8,53 @@
 #include <freetype/freetype.h>
 #include <ft2build.h>
 #include <iostream>
-#include <thread>
+#include <string>
+#include <vector>
 
-bool e172vp::Font::createTextureImage32(const vk::Device &logicalDevice,
-                                        const vk::PhysicalDevice &physicalDevice,
-                                        const vk::CommandPool &commandPool,
-                                        const vk::Queue &copyQueue,
-                                        void *pixels,
-                                        size_t w,
-                                        size_t h,
-                                        vk::Format format,
-                                        vk::Image *image,
-                                        vk::DeviceMemory *imageMemory)
+bool e172vp::Font::createTextureImage32(
+    const vk::Device& logicalDevice,
+    const vk::PhysicalDevice& physicalDevice,
+    const vk::CommandPool& commandPool,
+    const vk::Queue& copyQueue,
+    void* pixels,
+    size_t w,
+    size_t h,
+    vk::Format format,
+    vk::Image* image,
+    vk::DeviceMemory* imageMemory)
 {
-    createImage(logicalDevice,
-                physicalDevice,
-                w,
-                h,
-                format,
-                vk::ImageTiling::eOptimal,
-                vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-                vk::MemoryPropertyFlagBits::eDeviceLocal,
-                image,
-                imageMemory);
+    createImage(
+        logicalDevice,
+        physicalDevice,
+        w,
+        h,
+        format,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        image,
+        imageMemory);
 
     return updateTextureImage(logicalDevice, physicalDevice, commandPool, copyQueue, pixels, w, h, format, *image);
 }
 
-bool e172vp::Font::updateTextureImage(const vk::Device &logicalDevice, const vk::PhysicalDevice &physicalDevice, const vk::CommandPool &commandPool, const vk::Queue &copyQueue, void *pixels, size_t w, size_t h, vk::Format format, const vk::Image &image) {
+bool e172vp::Font::updateTextureImage(
+    const vk::Device& logicalDevice,
+    const vk::PhysicalDevice& physicalDevice,
+    const vk::CommandPool& commandPool,
+    const vk::Queue& copyQueue,
+    void* pixels,
+    size_t w,
+    size_t h,
+    vk::Format format,
+    const vk::Image& image)
+{
     int channelCount = 0;
-    if(format == vk::Format::eR8G8B8Srgb) {
+    if (format == vk::Format::eR8G8B8Srgb) {
         channelCount = 3;
-    } else if(format == vk::Format::eR8G8B8A8Srgb) {
+    } else if (format == vk::Format::eR8G8B8A8Srgb) {
         channelCount = 4;
-    } else if(format == vk::Format::eR8Srgb) {
+    } else if (format == vk::Format::eR8Srgb) {
         channelCount = 1;
     } else {
         std::cerr << "unsupported image format\n";
@@ -49,7 +64,14 @@ bool e172vp::Font::updateTextureImage(const vk::Device &logicalDevice, const vk:
 
     vk::Buffer stagingBuffer;
     vk::DeviceMemory stagingBufferMemory;
-    if(!Buffer::createAbstractBuffer(logicalDevice, physicalDevice, imageSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, &stagingBuffer, &stagingBufferMemory))
+    if (!Buffer::createAbstractBuffer(
+            logicalDevice,
+            physicalDevice,
+            imageSize,
+            vk::BufferUsageFlagBits::eTransferSrc,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            &stagingBuffer,
+            &stagingBufferMemory))
         return false;
 
     void* data;
@@ -57,17 +79,46 @@ bool e172vp::Font::updateTextureImage(const vk::Device &logicalDevice, const vk:
     memcpy(data, pixels, static_cast<size_t>(imageSize));
     vkUnmapMemory(logicalDevice, stagingBufferMemory);
 
-
-    transitionImageLayout(logicalDevice, commandPool, copyQueue, image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-    copyBufferToImage(logicalDevice, commandPool, copyQueue, stagingBuffer, image, static_cast<uint32_t>(w), static_cast<uint32_t>(h));
-    transitionImageLayout(logicalDevice, commandPool, copyQueue, image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+    transitionImageLayout(
+        logicalDevice,
+        commandPool,
+        copyQueue,
+        image,
+        vk::ImageLayout::eUndefined,
+        vk::ImageLayout::eTransferDstOptimal);
+    copyBufferToImage(
+        logicalDevice,
+        commandPool,
+        copyQueue,
+        stagingBuffer,
+        image,
+        static_cast<uint32_t>(w),
+        static_cast<uint32_t>(h));
+    transitionImageLayout(
+        logicalDevice,
+        commandPool,
+        copyQueue,
+        image,
+        vk::ImageLayout::eTransferDstOptimal,
+        vk::ImageLayout::eShaderReadOnlyOptimal);
 
     logicalDevice.destroyBuffer(stagingBuffer);
     logicalDevice.freeMemory(stagingBufferMemory);
     return true;
 }
 
-void e172vp::Font::createImage(const vk::Device &logicalDevice, const vk::PhysicalDevice &physicalDevice, uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Image *image, vk::DeviceMemory *imageMemory) {
+void e172vp::Font::createImage(
+    const vk::Device& logicalDevice,
+    const vk::PhysicalDevice& physicalDevice,
+    uint32_t width,
+    uint32_t height,
+    vk::Format format,
+    vk::ImageTiling tiling,
+    vk::ImageUsageFlags usage,
+    vk::MemoryPropertyFlags properties,
+    vk::Image* image,
+    vk::DeviceMemory* imageMemory)
+{
     vk::ImageCreateInfo imageInfo;
     imageInfo.imageType = vk::ImageType::e2D;
     imageInfo.extent.width = width;
@@ -101,7 +152,14 @@ void e172vp::Font::createImage(const vk::Device &logicalDevice, const vk::Physic
     logicalDevice.bindImageMemory(*image, *imageMemory, 0);
 }
 
-void e172vp::Font::transitionImageLayout(const vk::Device &logicalDevice, const vk::CommandPool &commandPool, const vk::Queue &queue, vk::Image image, vk::ImageLayout oldLayout, vk::ImageLayout newLayout) {
+void e172vp::Font::transitionImageLayout(
+    const vk::Device& logicalDevice,
+    const vk::CommandPool& commandPool,
+    const vk::Queue& queue,
+    vk::Image image,
+    vk::ImageLayout oldLayout,
+    vk::ImageLayout newLayout)
+{
     vk::CommandBuffer commandBuffer = beginSingleTimeCommands(logicalDevice, commandPool);
 
     vk::ImageMemoryBarrier barrier;
@@ -124,7 +182,8 @@ void e172vp::Font::transitionImageLayout(const vk::Device &logicalDevice, const 
 
         sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
         destinationStage = vk::PipelineStageFlagBits::eTransfer;
-    } else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
+    } else if (
+        oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
         barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
         barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
@@ -134,20 +193,17 @@ void e172vp::Font::transitionImageLayout(const vk::Device &logicalDevice, const 
         throw std::invalid_argument("unsupported layout transition!");
     }
 
-    commandBuffer.pipelineBarrier(
-                sourceStage,
-                destinationStage,
-                vk::DependencyFlags(),
-                0, nullptr,
-                0, nullptr,
-                1, &barrier
-                );
+    commandBuffer
+        .pipelineBarrier(sourceStage, destinationStage, vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &barrier);
 
     endSingleTimeCommands(logicalDevice, commandPool, queue, commandBuffer);
 }
 
-vk::CommandBuffer e172vp::Font::beginSingleTimeCommands(const vk::Device &logicalDevice, const vk::CommandPool &commandPool) {
-    vk::CommandBufferAllocateInfo allocInfo{};
+vk::CommandBuffer e172vp::Font::beginSingleTimeCommands(
+    const vk::Device& logicalDevice,
+    const vk::CommandPool& commandPool)
+{
+    vk::CommandBufferAllocateInfo allocInfo {};
     allocInfo.level = vk::CommandBufferLevel::ePrimary;
     allocInfo.commandPool = commandPool;
     allocInfo.commandBufferCount = 1;
@@ -157,7 +213,7 @@ vk::CommandBuffer e172vp::Font::beginSingleTimeCommands(const vk::Device &logica
         e172::Debug::warning("failed to allocate command buffers");
     }
 
-    vk::CommandBufferBeginInfo beginInfo{};
+    vk::CommandBufferBeginInfo beginInfo {};
     beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 
     if (commandBuffer.begin(&beginInfo) != vk::Result::eSuccess) {
@@ -167,10 +223,15 @@ vk::CommandBuffer e172vp::Font::beginSingleTimeCommands(const vk::Device &logica
     return commandBuffer;
 }
 
-void e172vp::Font::endSingleTimeCommands(const vk::Device &logicalDevice, const vk::CommandPool &commandPool, const vk::Queue &queue, vk::CommandBuffer commandBuffer) {
+void e172vp::Font::endSingleTimeCommands(
+    const vk::Device& logicalDevice,
+    const vk::CommandPool& commandPool,
+    const vk::Queue& queue,
+    vk::CommandBuffer commandBuffer)
+{
     commandBuffer.end();
 
-    vk::SubmitInfo submitInfo{};
+    vk::SubmitInfo submitInfo {};
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
@@ -182,10 +243,18 @@ void e172vp::Font::endSingleTimeCommands(const vk::Device &logicalDevice, const 
     logicalDevice.freeCommandBuffers(commandPool, 1, &commandBuffer);
 }
 
-void e172vp::Font::copyBufferToImage(const vk::Device &logicalDevice, const vk::CommandPool &commandPool, const vk::Queue &queue, vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height) {
+void e172vp::Font::copyBufferToImage(
+    const vk::Device& logicalDevice,
+    const vk::CommandPool& commandPool,
+    const vk::Queue& queue,
+    vk::Buffer buffer,
+    vk::Image image,
+    uint32_t width,
+    uint32_t height)
+{
     vk::CommandBuffer commandBuffer = beginSingleTimeCommands(logicalDevice, commandPool);
 
-    vk::BufferImageCopy region{};
+    vk::BufferImageCopy region {};
     region.bufferOffset = 0;
     region.bufferRowLength = 0;
     region.bufferImageHeight = 0;
@@ -193,24 +262,21 @@ void e172vp::Font::copyBufferToImage(const vk::Device &logicalDevice, const vk::
     region.imageSubresource.mipLevel = 0;
     region.imageSubresource.baseArrayLayer = 0;
     region.imageSubresource.layerCount = 1;
-    region.imageOffset = vk::Offset3D {0, 0, 0};
-    region.imageExtent = vk::Extent3D {
-        width,
-        height,
-        1
-    };
+    region.imageOffset = vk::Offset3D { 0, 0, 0 };
+    region.imageExtent = vk::Extent3D { width, height, 1 };
 
     commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, 1, &region);
 
     endSingleTimeCommands(logicalDevice, commandPool, queue, commandBuffer);
 }
 
-e172vp::Font::Font(const vk::Device &logicalDevice,
-                   const vk::PhysicalDevice &physicalDevice,
-                   const vk::CommandPool &commandPool,
-                   const vk::Queue &copyQueue,
-                   const std::filesystem::path &path,
-                   size_t size)
+e172vp::Font::Font(
+    const vk::Device& logicalDevice,
+    const vk::PhysicalDevice& physicalDevice,
+    const vk::CommandPool& commandPool,
+    const vk::Queue& copyQueue,
+    const std::filesystem::path& path,
+    size_t size)
 {
     m_logicalDevice = logicalDevice;
 
@@ -221,17 +287,14 @@ e172vp::Font::Font(const vk::Device &logicalDevice,
     }
 
     FT_Face face;
-    if (FT_New_Face(ft, path.c_str(), 0, &face)) {
+    if (FT_New_Face(ft, path.string().c_str(), 0, &face)) {
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
         return;
     }
 
     FT_Set_Pixel_Sizes(face, 0, size);
 
-
-
-    for (unsigned char c = 0; c < 128; c++)
-    {
+    for (unsigned char c = 0; c < 128; c++) {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
             std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
             continue;
@@ -239,42 +302,45 @@ e172vp::Font::Font(const vk::Device &logicalDevice,
 
         Character character;
 
+        // face->glyph->subglyphs
 
-        //face->glyph->subglyphs
+        std::string f = { static_cast<char>(face->glyph->format >> 24),
+                          static_cast<char>(face->glyph->format >> 16),
+                          static_cast<char>(face->glyph->format >> 8),
+                          static_cast<char>(face->glyph->format >> 0) };
 
-        std::string f = {
-            static_cast<char>(face->glyph->format >> 24),
-            static_cast<char>(face->glyph->format >> 16),
-            static_cast<char>(face->glyph->format >> 8),
-            static_cast<char>(face->glyph->format >> 0)
-        };
-
-
-
-
-
-
-        if(face->glyph->bitmap.width > 0 && face->glyph->bitmap.rows > 0) {
+        if (face->glyph->bitmap.width > 0 && face->glyph->bitmap.rows > 0) {
             character.m_imageFormat = vk::Format::eR8G8B8A8Srgb;
 
-            uint32_t rgba_buffer[face->glyph->bitmap.rows * face->glyph->bitmap.width];
+            std::vector<std::uint32_t> rgba_buffer(face->glyph->bitmap.rows * face->glyph->bitmap.width, 0);
             auto p = reinterpret_cast<uint8_t*>(face->glyph->bitmap.buffer);
-            for(size_t y = 0; y < face->glyph->bitmap.rows; ++y) {
-                for(size_t x = 0; x < face->glyph->bitmap.width; ++x) {
-                    uint8_t c = p[x + y * face->glyph->bitmap.width];
+            for (size_t y = 0; y < face->glyph->bitmap.rows; ++y) {
+                for (size_t x = 0; x < face->glyph->bitmap.width; ++x) {
+                    std::uint8_t c = p[x + y * face->glyph->bitmap.width];
 
-                    uint32_t c32 = static_cast<uint32_t>(c);
-                    uint32_t color = 0xff0088ff;
-                    uint32_t gray = color & c32;
+                    std::uint32_t c32 = static_cast<uint32_t>(c);
+                    std::uint32_t color = 0xff0088ff;
+                    std::uint32_t gray = color & c32;
 
                     rgba_buffer[x + y * face->glyph->bitmap.width] = gray;
                 }
             }
 
-            if(!createTextureImage32(logicalDevice, physicalDevice, commandPool, copyQueue, &rgba_buffer, face->glyph->bitmap.width, face->glyph->bitmap.rows, character.m_imageFormat, &character.m_image, &character.m_imageMemory))
+            if (!createTextureImage32(
+                    logicalDevice,
+                    physicalDevice,
+                    commandPool,
+                    copyQueue,
+                    rgba_buffer.data(),
+                    face->glyph->bitmap.width,
+                    face->glyph->bitmap.rows,
+                    character.m_imageFormat,
+                    &character.m_image,
+                    &character.m_imageMemory))
                 break;
 
-            character.m_imageView = SwapChain::createImageView(logicalDevice, character.m_image, character.m_imageFormat);
+            character
+                .m_imageView = SwapChain::createImageView(logicalDevice, character.m_image, character.m_imageFormat);
             character.m_size = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows);
             character.m_bearing = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top);
             character.m_advance = face->glyph->advance.x;
@@ -282,29 +348,26 @@ e172vp::Font::Font(const vk::Device &logicalDevice,
 
             characters.insert(std::pair<char, Character>(c, character));
         }
-
     }
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
 }
 
-e172vp::Font::~Font() {
-    if(m_logicalDevice) {
-        for(auto c : characters) {
-            if(c.second.m_imageView)
+e172vp::Font::~Font()
+{
+    if (m_logicalDevice) {
+        for (auto c : characters) {
+            if (c.second.m_imageView)
                 m_logicalDevice.destroyImageView(c.second.m_imageView);
-            if(c.second.m_image)
+            if (c.second.m_image)
                 m_logicalDevice.destroyImage(c.second.m_image);
-            if(c.second.m_imageMemory)
+            if (c.second.m_imageMemory)
                 m_logicalDevice.freeMemory(c.second.m_imageMemory);
         }
     }
 }
 
-e172vp::Font::Character e172vp::Font::character(char c) const {
-    return characters.at(c);
-}
-
+e172vp::Font::Character e172vp::Font::character(char c) const { return characters.at(c); }
 
 vk::Image e172vp::Font::Character::image() const { return m_image; }
 vk::ImageView e172vp::Font::Character::imageView() const { return m_imageView; }

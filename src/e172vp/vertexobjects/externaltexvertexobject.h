@@ -1,16 +1,18 @@
-#ifndef VERTEXOBJECT_H
-#define VERTEXOBJECT_H
+// Copyright 2023 Borys Boiko
 
-#include "../vertex.h"
+#pragma once
+
 #include "../descriptorsetlayout.h"
-
+#include "../vertex.h"
 #include "abstractvertexobject.h"
+#include <vector>
 
 namespace e172vp {
 
-
 class ExternalTexVertexObject : public AbstractVertexObject {
-    struct ubo { glm::mat4 model; };
+    struct ubo {
+        glm::mat4 model;
+    };
 
     glm::mat4 m_rotation = glm::mat4(1);
     glm::mat4 m_translation = glm::mat4(1);
@@ -25,31 +27,37 @@ class ExternalTexVertexObject : public AbstractVertexObject {
 
     std::vector<vk::DescriptorSet> m_descriptorSets;
 
-
     std::vector<Vertex> m_vertices;
     std::vector<uint32_t> m_indices;
     vk::ImageView m_imageView;
+
 public:
-    ExternalTexVertexObject(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const vk::ImageView &imageView);
+    ExternalTexVertexObject(
+        const std::vector<Vertex>& vertices,
+        const std::vector<uint32_t>& indices,
+        const vk::ImageView& imageView);
     ~ExternalTexVertexObject();
 
-
-    void setVertices(const std::vector<Vertex> &vertices);
+    void setVertices(const std::vector<Vertex>& vertices);
     glm::mat4 rotation() const;
-    void setRotation(const glm::mat4 &rotation);
+    void setRotation(const glm::mat4& rotation);
     glm::mat4 translation() const;
-    void setTranslation(const glm::mat4 &translation);
+    void setTranslation(const glm::mat4& translation);
     glm::mat4 scale() const;
-    void setScale(const glm::mat4 &scale);
+    void setScale(const glm::mat4& scale);
 
     // AbstractVertexObject interface
 public:
-    virtual vk::Buffer vertexBuffer() const override;
-    virtual vk::Buffer indexBuffer() const override;
-    virtual uint32_t indexCount() const override;
-    virtual void update(int) override;
-    virtual std::vector<vk::DescriptorSet> descriptorSets() override;
-    virtual void initialize(const GraphicsObject *graphicsObject, int, const DescriptorSetLayout *objectDSL, const DescriptorSetLayout *samplerDSL) override;
+    vk::Buffer vertexBuffer() const override;
+    vk::Buffer indexBuffer() const override;
+    uint32_t indexCount() const override;
+    void update(int) override;
+    std::vector<vk::DescriptorSet> descriptorSets() override;
+    void initialize(
+        const GraphicsObject* graphicsObject,
+        int,
+        const DescriptorSetLayout* objectDSL,
+        const DescriptorSetLayout* samplerDSL) override;
 };
-}
-#endif // VERTEXOBJECT_H
+
+} // namespace e172vp

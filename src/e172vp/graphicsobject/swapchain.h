@@ -1,8 +1,11 @@
-#ifndef SWAPCHAIN_H
-#define SWAPCHAIN_H
+// Copyright 2023 Borys Boiko
 
-#include <vulkan/vulkan.hpp>
+#pragma once
+
 #include "../tools/hardware.h"
+#include <string>
+#include <vector>
+#include <vulkan/vulkan.hpp>
 
 namespace e172vp {
 
@@ -13,6 +16,7 @@ class SwapChain {
 
     bool m_isValid = false;
     std::vector<std::string> m_errors;
+
 public:
     struct Settings {
         vk::SurfaceFormatKHR surfaceFormat;
@@ -20,26 +24,41 @@ public:
         vk::Extent2D extent;
         e172vp::Hardware::SwapChainSupportDetails supportDetails;
     };
+
 private:
     Settings m_settings;
+
 public:
+    static vk::SurfaceFormatKHR chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
+    static vk::PresentModeKHR choosePresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
+    static vk::Extent2D chooseExtent(
+        const vk::SurfaceCapabilitiesKHR& capabilities,
+        const vk::Extent2D& defaultExtent = vk::Extent2D());
+    static Settings createSettings(
+        const e172vp::Hardware::SwapChainSupportDetails& supportDetails,
+        const vk::Extent2D& defaultExtent = vk::Extent2D());
 
-    static vk::SurfaceFormatKHR chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats);
-    static vk::PresentModeKHR choosePresentMode(const std::vector<vk::PresentModeKHR> &availablePresentModes);
-    static vk::Extent2D chooseExtent(const vk::SurfaceCapabilitiesKHR &capabilities, const vk::Extent2D &defaultExtent = vk::Extent2D());
-    static Settings createSettings(const e172vp::Hardware::SwapChainSupportDetails &supportDetails, const vk::Extent2D &defaultExtent = vk::Extent2D());
+    static bool createImageViewes(
+        const vk::Device& logicDevice,
+        const std::vector<vk::Image>& swapChainImages,
+        const vk::Format& swapChainImageFormat,
+        std::vector<vk::ImageView>* swapChainImageViews,
+        std::vector<std::string>* error_queue);
 
-    static bool createImageViewes(const vk::Device &logicDevice, const std::vector<vk::Image> &swapChainImages, const vk::Format &swapChainImageFormat, std::vector<vk::ImageView> *swapChainImageViews, std::vector<std::string> *error_queue);
-
-    static vk::ImageView createImageView(const vk::Device &logicalDevice, vk::Image image, vk::Format format, std::vector<std::string> *error_queue = nullptr);
-
-
-
+    static vk::ImageView createImageView(
+        const vk::Device& logicalDevice,
+        vk::Image image,
+        vk::Format format,
+        std::vector<std::string>* error_queue = nullptr);
 
     SwapChain();
-    SwapChain(const vk::Device &logicalDevice, const vk::SurfaceKHR &surface, const Hardware::QueueFamilies &queueFamilies, const Settings &settings);
+    SwapChain(
+        const vk::Device& logicalDevice,
+        const vk::SurfaceKHR& surface,
+        const Hardware::QueueFamilies& queueFamilies,
+        const Settings& settings);
     vk::SwapchainKHR swapChainHandle() const;
-    operator vk::SwapchainKHR () const;
+    operator vk::SwapchainKHR() const;
 
     std::vector<std::string> pullErrors();
     bool isValid() const;
@@ -55,4 +74,3 @@ public:
 };
 
 }
-#endif // SWAPCHAIN_H

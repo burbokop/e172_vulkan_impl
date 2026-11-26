@@ -1,34 +1,39 @@
+// Copyright 2023 Borys Boiko
+
 #include "renderpass.h"
+
+#include <string>
+#include <vector>
 
 vk::RenderPass e172vp::RenderPass::renderPathHandle() const { return m_renderPathHandle; }
 
-e172vp::RenderPass::operator VkRenderPass() const {
-    return m_renderPathHandle;
-}
+e172vp::RenderPass::operator VkRenderPass() const { return m_renderPathHandle; }
 
 bool e172vp::RenderPass::isValid() const { return m_isValid; }
 
-std::vector<vk::Framebuffer> e172vp::RenderPass::frameBufferVector() const {
-    return m_frameBuffers;
-}
+std::vector<vk::Framebuffer> e172vp::RenderPass::frameBufferVector() const { return m_frameBuffers; }
 
-vk::Framebuffer e172vp::RenderPass::frameBuffer(size_t index) const {
-    if(index < m_frameBuffers.size())
+vk::Framebuffer e172vp::RenderPass::frameBuffer(size_t index) const
+{
+    if (index < m_frameBuffers.size())
         return m_frameBuffers[index];
     return vk::Framebuffer();
 }
 
-size_t e172vp::RenderPass::frameBufferCount() const {
-    return m_frameBuffers.size();
-}
+size_t e172vp::RenderPass::frameBufferCount() const { return m_frameBuffers.size(); }
 
-bool e172vp::RenderPass::createFrameBuffers(const vk::Device &logicalDevice, const vk::Extent2D &extent, const vk::RenderPass &renderPass, const std::vector<vk::ImageView> &swapChainImageViews, std::vector<vk::Framebuffer> *swapChainFramebuffers, std::vector<std::string> *error_queue) {
+bool e172vp::RenderPass::createFrameBuffers(
+    const vk::Device& logicalDevice,
+    const vk::Extent2D& extent,
+    const vk::RenderPass& renderPass,
+    const std::vector<vk::ImageView>& swapChainImageViews,
+    std::vector<vk::Framebuffer>* swapChainFramebuffers,
+    std::vector<std::string>* error_queue)
+{
     swapChainFramebuffers->resize(swapChainImageViews.size());
 
     for (size_t i = 0; i < swapChainImageViews.size(); i++) {
-        vk::ImageView attachments[] = {
-            swapChainImageViews[i]
-        };
+        vk::ImageView attachments[] = { swapChainImageViews[i] };
 
         vk::FramebufferCreateInfo framebufferInfo;
         framebufferInfo.renderPass = renderPass;
@@ -38,7 +43,8 @@ bool e172vp::RenderPass::createFrameBuffers(const vk::Device &logicalDevice, con
         framebufferInfo.height = extent.height;
         framebufferInfo.layers = 1;
 
-        const auto code = logicalDevice.createFramebuffer(&framebufferInfo, nullptr, &swapChainFramebuffers->operator[](i));
+        const auto code = logicalDevice
+                              .createFramebuffer(&framebufferInfo, nullptr, &swapChainFramebuffers->operator[](i));
         if (code != vk::Result::eSuccess) {
             error_queue->push_back("[error] Failed to create framebuffer: " + vk::to_string(code));
             return false;
@@ -47,7 +53,11 @@ bool e172vp::RenderPass::createFrameBuffers(const vk::Device &logicalDevice, con
     return true;
 }
 
-e172vp::RenderPass::RenderPass(const vk::Device &logicalDevice, const SwapChain &swapchain, int subpassCount) {
+e172vp::RenderPass::RenderPass(
+    const vk::Device& logicalDevice,
+    const SwapChain& swapchain,
+    int subpassCount)
+{
     vk::AttachmentDescription colorAttachment;
     colorAttachment.format = swapchain.settings().surfaceFormat.format;
     colorAttachment.samples = vk::SampleCountFlagBits::e1;
@@ -58,11 +68,9 @@ e172vp::RenderPass::RenderPass(const vk::Device &logicalDevice, const SwapChain 
     colorAttachment.initialLayout = vk::ImageLayout::eUndefined;
     colorAttachment.finalLayout = vk::ImageLayout::ePresentSrcKHR;
 
-
-
     std::vector<vk::SubpassDescription> subpasses(subpassCount);
     std::vector<vk::AttachmentReference> colorAttachmentRefs(subpassCount);
-    for(int i = 0; i < subpassCount; ++i) {
+    for (int i = 0; i < subpassCount; ++i) {
         colorAttachmentRefs[i].attachment = 0;
         colorAttachmentRefs[i].layout = vk::ImageLayout::eColorAttachmentOptimal;
 
@@ -75,33 +83,30 @@ e172vp::RenderPass::RenderPass(const vk::Device &logicalDevice, const SwapChain 
     renderPassInfo.pAttachments = &colorAttachment;
     renderPassInfo.setSubpasses(subpasses);
 
-
     const auto code = logicalDevice.createRenderPass(&renderPassInfo, nullptr, &m_renderPathHandle);
     if (code != vk::Result::eSuccess) {
         m_errors.push_back("[error] Failed to create render pass: " + vk::to_string(code));
         return;
     }
 
-    if(!createFrameBuffers(
-                logicalDevice,
-                swapchain.settings().extent,
-                m_renderPathHandle,
-                swapchain.imageViewVector(),
-                &m_frameBuffers,
-                &m_errors
-                )) {
+    if (!createFrameBuffers(
+            logicalDevice,
+            swapchain.settings().extent,
+            m_renderPathHandle,
+            swapchain.imageViewVector(),
+            &m_frameBuffers,
+            &m_errors)) {
         return;
     }
 
     m_isValid = true;
 }
 
-std::vector<std::string> e172vp::RenderPass::pullErrors() {
+std::vector<std::string> e172vp::RenderPass::pullErrors()
+{
     const auto r = m_errors;
     m_errors.clear();
     return r;
 }
 
-e172vp::RenderPass::operator vk::RenderPass() const {
-    return m_renderPathHandle;
-}
+e172vp::RenderPass::operator vk::RenderPass() const { return m_renderPathHandle; }

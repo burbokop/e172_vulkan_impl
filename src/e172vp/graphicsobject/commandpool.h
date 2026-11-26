@@ -1,8 +1,11 @@
-#ifndef COMMANDPOOL_H
-#define COMMANDPOOL_H
+// Copyright 2023 Borys Boiko
 
-#include <vulkan/vulkan.hpp>
+#pragma once
+
 #include "../tools/hardware.h"
+#include <string>
+#include <vector>
+#include <vulkan/vulkan.hpp>
 
 namespace e172vp {
 
@@ -12,9 +15,13 @@ class CommandPool {
 
     std::vector<std::string> m_errors;
     bool m_isValid = false;
+
 public:
     CommandPool() {}
-    CommandPool(const vk::Device &logicalDevice, const Hardware::QueueFamilies &queueFamilies, size_t buffersCount);
+    CommandPool(
+        const vk::Device& logicalDevice,
+        const Hardware::QueueFamilies& queueFamilies,
+        size_t buffersCount);
 
     vk::CommandPool commandPullHandle() const;
     operator vk::CommandPool() const;
@@ -27,4 +34,3 @@ public:
 };
 
 }
-#endif // COMMANDPOOL_H

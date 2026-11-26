@@ -1,25 +1,32 @@
-#ifndef STRINGVECTOR_H
-#define STRINGVECTOR_H
+// Copyright 2023 Borys Boiko
 
-#include <vector>
+#pragma once
+
 #include <string>
+#include <vector>
 
 namespace e172vp {
 
 struct StringVector {
-    static std::vector<std::string> mergePair(const std::vector<std::string> &sv0, const std::vector<std::string> &sv1);
-    static std::vector<std::string> subtract(const std::vector<std::string> &sv0, const std::vector<std::string> &sv1);
+    static std::vector<std::string> mergePair(
+        const std::vector<std::string>& sv0,
+        const std::vector<std::string>& sv1);
+    static std::vector<std::string> subtract(
+        const std::vector<std::string>& sv0,
+        const std::vector<std::string>& sv1);
 
     template<typename T>
-    static void fillCStrContainer(const std::vector<std::string> &sv, T& container) {
+    static void fillCStrContainer(
+        const std::vector<std::string>& sv,
+        T& container)
+    {
         container.resize(sv.size());
-        for(size_t i = 0; i < sv.size(); ++i) {
+        for (size_t i = 0; i < sv.size(); ++i) {
             container[i] = sv[i].c_str();
         }
     }
 
-    static std::string toString(const std::vector<std::string> &vector);
+    static std::string toString(const std::vector<std::string>& vector);
 };
 
-}
-#endif // STRINGVECTOR_H
+} // namespace e172vp

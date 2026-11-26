@@ -1,31 +1,30 @@
+// Copyright 2023 Borys Boiko
+
 #include "pipeline.h"
 
 #include "vertex.h"
-#include <fstream>
+#include <vector>
 
-vk::Pipeline e172vp::Pipeline::handle() const {
-    return m_handle;
-}
+vk::Pipeline e172vp::Pipeline::handle() const { return m_handle; }
 
-vk::PipelineLayout e172vp::Pipeline::pipelineLayout() const {
-    return m_pipelineLayout;
-}
+vk::PipelineLayout e172vp::Pipeline::pipelineLayout() const { return m_pipelineLayout; }
 
-e172vp::Pipeline::~Pipeline() {
-    if(m_logicalDevice) {
-        if(m_pipelineLayout)
+e172vp::Pipeline::~Pipeline()
+{
+    if (m_logicalDevice) {
+        if (m_pipelineLayout)
             m_logicalDevice.destroyPipelineLayout(m_pipelineLayout);
-        if(m_handle)
+        if (m_handle)
             m_logicalDevice.destroyPipeline(m_handle);
     }
 }
 
-vk::Device e172vp::Pipeline::logicalDevice() const
-{
-    return m_logicalDevice;
-}
+vk::Device e172vp::Pipeline::logicalDevice() const { return m_logicalDevice; }
 
-vk::ShaderModule e172vp::Pipeline::createShaderModule(const vk::Device &logicDevice, const std::vector<char> &code) {
+vk::ShaderModule e172vp::Pipeline::createShaderModule(
+    const vk::Device& logicDevice,
+    const std::vector<char>& code)
+{
     vk::ShaderModuleCreateInfo createInfo;
     createInfo.setCodeSize(code.size());
     createInfo.setPCode(reinterpret_cast<const uint32_t*>(code.data()));
@@ -38,7 +37,16 @@ vk::ShaderModule e172vp::Pipeline::createShaderModule(const vk::Device &logicDev
     return shaderModule;
 }
 
-e172vp::Pipeline::Pipeline(const vk::Device &logicalDevice, const vk::Extent2D &extent, const vk::RenderPass &renderPass, int subpass, const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts, const std::vector<char> &vertexShader, const std::vector<char> &fragmentShader, vk::PrimitiveTopology topology) {
+e172vp::Pipeline::Pipeline(
+    const vk::Device& logicalDevice,
+    const vk::Extent2D& extent,
+    const vk::RenderPass& renderPass,
+    int subpass,
+    const std::vector<vk::DescriptorSetLayout>& descriptorSetLayouts,
+    const std::vector<char>& vertexShader,
+    const std::vector<char>& fragmentShader,
+    vk::PrimitiveTopology topology)
+{
     vk::ShaderModule vertShaderModule = createShaderModule(logicalDevice, vertexShader);
     vk::ShaderModule fragShaderModule = createShaderModule(logicalDevice, fragmentShader);
 
@@ -47,15 +55,14 @@ e172vp::Pipeline::Pipeline(const vk::Device &logicalDevice, const vk::Extent2D &
     vertShaderStageInfo.module = vertShaderModule;
     vertShaderStageInfo.pName = "main";
 
-    vk::PipelineShaderStageCreateInfo fragShaderStageInfo{};
+    vk::PipelineShaderStageCreateInfo fragShaderStageInfo {};
     fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;
     fragShaderStageInfo.module = fragShaderModule;
     fragShaderStageInfo.pName = "main";
 
-    vk::PipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+    vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-
-    //vertex input
+    // vertex input
     vk::PipelineVertexInputStateCreateInfo vertexInputInfo {};
     const auto bindingDescription = Vertex::bindingDescription();
     const auto attributeDescriptions = Vertex::attributeDescriptions();
@@ -71,8 +78,8 @@ e172vp::Pipeline::Pipeline(const vk::Device &logicalDevice, const vk::Extent2D &
     vk::Viewport viewport;
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = (float) extent.width;
-    viewport.height = (float) extent.height;
+    viewport.width = (float)extent.width;
+    viewport.height = (float)extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
@@ -86,7 +93,7 @@ e172vp::Pipeline::Pipeline(const vk::Device &logicalDevice, const vk::Extent2D &
     viewportState.scissorCount = 1;
     viewportState.pScissors = &scissor;
 
-    vk::PipelineRasterizationStateCreateInfo rasterizer{};
+    vk::PipelineRasterizationStateCreateInfo rasterizer {};
     rasterizer.depthClampEnable = false;
     rasterizer.rasterizerDiscardEnable = false;
     rasterizer.polygonMode = vk::PolygonMode::eFill;
@@ -99,16 +106,13 @@ e172vp::Pipeline::Pipeline(const vk::Device &logicalDevice, const vk::Extent2D &
     multisampling.sampleShadingEnable = false;
     multisampling.rasterizationSamples = vk::SampleCountFlagBits::e1;
 
-    vk::PipelineColorBlendAttachmentState colorBlendAttachment{};
-    colorBlendAttachment.colorWriteMask
-            = vk::ColorComponentFlagBits::eR
-            | vk::ColorComponentFlagBits::eG
-            | vk::ColorComponentFlagBits::eB
-            | vk::ColorComponentFlagBits::eA;
+    vk::PipelineColorBlendAttachmentState colorBlendAttachment {};
+    colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
+        | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
 
     colorBlendAttachment.blendEnable = false;
 
-    vk::PipelineColorBlendStateCreateInfo colorBlending{};
+    vk::PipelineColorBlendStateCreateInfo colorBlending {};
     colorBlending.logicOpEnable = false;
     colorBlending.logicOp = vk::LogicOp::eCopy;
     colorBlending.attachmentCount = 1;
@@ -118,7 +122,7 @@ e172vp::Pipeline::Pipeline(const vk::Device &logicalDevice, const vk::Extent2D &
     colorBlending.blendConstants[2] = 0.0f;
     colorBlending.blendConstants[3] = 0.0f;
 
-    vk::PipelineLayoutCreateInfo pipelineLayoutInfo{};
+    vk::PipelineLayoutCreateInfo pipelineLayoutInfo {};
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
     pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
@@ -141,7 +145,8 @@ e172vp::Pipeline::Pipeline(const vk::Device &logicalDevice, const vk::Extent2D &
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = subpass;
 
-    if (logicalDevice.createGraphicsPipelines(vk::PipelineCache(), 1, &pipelineInfo, nullptr, &m_handle) != vk::Result::eSuccess) {
+    if (logicalDevice.createGraphicsPipelines(vk::PipelineCache(), 1, &pipelineInfo, nullptr, &m_handle)
+        != vk::Result::eSuccess) {
         throw std::runtime_error("failed to create graphics pipeline!");
     }
 

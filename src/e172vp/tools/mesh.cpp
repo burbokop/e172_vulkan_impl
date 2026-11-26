@@ -1,33 +1,112 @@
+// Copyright 2023 Borys Boiko
+
 #include "mesh.h"
 
 #include <string.h>
+#include <string>
 
-e172vp::Mesh e172vp::Mesh::plate(float radius)
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#include <stdio.h>
+#include <windows.h>
+#endif
+
+namespace e172vp {
+
+namespace {
+
+#ifdef _WIN32
+
+FILE* win_fmemopen(
+    void* buf,
+    size_t size,
+    const char* mode)
+{
+    char temp_path[MAX_PATH];
+    char temp_file[MAX_PATH];
+
+    if (!GetTempPathA(MAX_PATH, temp_path) || !GetTempFileNameA(temp_path, "fmem", 0, temp_file)) {
+        return NULL;
+    }
+
+    // Create a temporary file that is automatically deleted when closed
+    HANDLE hFile = CreateFileA(
+        temp_file,
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        NULL,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE,
+        NULL);
+
+    if (hFile == INVALID_HANDLE_VALUE) {
+        return NULL;
+    }
+
+    // Write the initial buffer contents into the temporary file
+    if (buf != NULL && size > 0 && mode[0] != 'w') {
+        DWORD written = 0;
+        if (!WriteFile(hFile, buf, (DWORD)size, &written, NULL) || written != size) {
+            CloseHandle(hFile);
+            return NULL;
+        }
+        // Reset file pointer to the beginning for reading (unless appending)
+        if (mode[0] != 'a') {
+            SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+        }
+    }
+
+    // Convert the Win32 HANDLE to a C runtime file descriptor, then to FILE*
+    int fd = _open_osfhandle((intptr_t)hFile, _O_RDWR | _O_BINARY);
+    if (fd == -1) {
+        CloseHandle(hFile);
+        return NULL;
+    }
+
+    FILE* fp = _fdopen(fd, mode);
+    if (!fp) {
+        _close(fd); // Also closes hFile
+        return NULL;
+    }
+
+    return fp;
+}
+
+#endif
+
+}
+
+Mesh Mesh::plate(float radius)
 {
     Mesh result;
     result.m_hasTexture = true;
-    result.m_vertices = {{-radius, -radius, 0},
-                         {radius, -radius, 0},
-                         {radius, radius, 0},
-                         {-radius, radius, 0}};
-    result.m_uvMap = {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}};
-    result.m_vertexIndices = {0, 1, 2, 2, 3, 0};
+    result.m_vertices = {
+        { -radius, -radius, 0 }, { radius, -radius, 0 }, { radius, radius, 0 }, { -radius, radius, 0 }
+    };
+    result.m_uvMap = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+    result.m_vertexIndices = { 0, 1, 2, 2, 3, 0 };
     return result;
 }
 
-e172vp::Mesh e172vp::Mesh::plate(const glm::vec2 point0, const glm::vec2 point1) {
+Mesh Mesh::plate(
+    const glm::vec2 point0,
+    const glm::vec2 point1)
+{
     Mesh result;
     result.m_hasTexture = true;
-    result.m_vertices = {{point0.x, point0.y, 0},
-                         {point1.x, point0.y, 0},
-                         {point1.x, point1.y, 0},
-                         {point0.x, point1.y, 0}};
-    result.m_uvMap = {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}};
-    result.m_vertexIndices = {0, 1, 2, 2, 3, 0};
+    result.m_vertices = {
+        { point0.x, point0.y, 0 }, { point1.x, point0.y, 0 }, { point1.x, point1.y, 0 }, { point0.x, point1.y, 0 }
+    };
+    result.m_uvMap = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+    result.m_vertexIndices = { 0, 1, 2, 2, 3, 0 };
     return result;
 }
 
-e172::Either<e172vp::Mesh::Error, e172vp::Mesh> e172vp::Mesh::parseObjFromCStream(FILE *stream)
+e172::Either<
+    Mesh::Error,
+    Mesh>
+Mesh::parseObjFromCStream(FILE* stream)
 {
     assert(stream);
     e172vp::Mesh result;
@@ -41,21 +120,33 @@ e172::Either<e172vp::Mesh::Error, e172vp::Mesh> e172vp::Mesh::parseObjFromCStrea
             float x = 0;
             float y = 0;
             float z = 0;
-            fscanf(stream, "%f %f %f\n", &x, &y, &z);
-            result.m_vertices.push_back({x, y, z});
+            const auto res = fscanf(stream, "%f %f %f\n", &x, &y, &z);
+            if (res == EOF) {
+                std::abort();
+            }
+
+            result.m_vertices.push_back({ x, y, z });
         } else if (strcmp(line.c_str(), "vt") == 0) {
             float x = 0;
             float y = 0;
-            fscanf(stream, "%f %f\n", &x, &y);
-            result.m_uvMap.push_back({x, y});
+            const auto res = fscanf(stream, "%f %f\n", &x, &y);
+            if (res == EOF) {
+                std::abort();
+            }
+
+            result.m_uvMap.push_back({ x, y });
         }
 
         else if (strcmp(line.c_str(), "vn") == 0) {
             float x = 0;
             float y = 0;
             float z = 0;
-            fscanf(stream, "%f %f %f\n", &x, &y, &z);
-            result.m_normals.push_back({x, y, z});
+            const auto res = fscanf(stream, "%f %f %f\n", &x, &y, &z);
+            if (res == EOF) {
+                std::abort();
+            }
+
+            result.m_normals.push_back({ x, y, z });
         } else if (strcmp(line.c_str(), "f") == 0) {
             uint32_t iv1x = 0;
             uint32_t iv1y = 0;
@@ -66,17 +157,12 @@ e172::Either<e172vp::Mesh::Error, e172vp::Mesh> e172vp::Mesh::parseObjFromCStrea
             uint32_t iv3x = 0;
             uint32_t iv3y = 0;
             uint32_t iv3z = 0;
-            fscanf(stream,
-                   "%d/%d/%d %d/%d/%d %d/%d/%d\n",
-                   &iv1x,
-                   &iv1y,
-                   &iv1z,
-                   &iv2x,
-                   &iv2y,
-                   &iv2z,
-                   &iv3x,
-                   &iv3y,
-                   &iv3z);
+            const auto res = fscanf(
+                stream, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &iv1x, &iv1y, &iv1z, &iv2x, &iv2y, &iv2z, &iv3x, &iv3y, &iv3z);
+
+            if (res == EOF) {
+                std::abort();
+            }
 
             result.m_vertexIndices.push_back(iv1x - 1);
             result.m_vertexIndices.push_back(iv2x - 1);
@@ -94,27 +180,41 @@ e172::Either<e172vp::Mesh::Error, e172vp::Mesh> e172vp::Mesh::parseObjFromCStrea
     return e172::Right(result);
 }
 
-e172::Either<e172vp::Mesh::Error, e172vp::Mesh> e172vp::Mesh::parseObj(const std::string &data)
+e172::Either<
+    Mesh::Error,
+    Mesh>
+Mesh::parseObj(const std::string& data)
 {
-    auto stream = ::fmemopen(const_cast<char *>(data.data()), data.size(), "r");
+#ifdef _WIN32
+    auto stream = e172vp::win_fmemopen(const_cast<char*>(data.data()), data.size(), "r");
+#else
+    auto stream = ::fmemopen(const_cast<char*>(data.data()), data.size(), "r");
+#endif
     const auto result = parseObjFromCStream(stream);
     ::fclose(stream);
     return result;
 }
 
-e172::Either<e172vp::Mesh::Error, e172vp::Mesh> e172vp::Mesh::parseObj(const e172::ByteRange &data)
+e172::Either<
+    Mesh::Error,
+    Mesh>
+Mesh::parseObj(const e172::ByteRange& data)
 {
     return parseObj(std::string(data.begin(), data.end()));
 }
 
-e172::Either<e172vp::Mesh::Error, e172vp::Mesh> e172vp::Mesh::loadObj(
-    const std::filesystem::path &path)
+e172::Either<
+    Mesh::Error,
+    Mesh>
+Mesh::loadObj(const std::filesystem::path& path)
 {
-    auto stream = ::fopen(path.c_str(), "r");
+    auto stream = ::fopen(path.string().c_str(), "r");
     if (!stream) {
         return e172::Left(FileNotFound);
     }
     const auto result = parseObjFromCStream(stream);
     ::fclose(stream);
     return result;
+}
+
 }

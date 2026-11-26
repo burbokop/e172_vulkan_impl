@@ -1,8 +1,15 @@
+// Copyright 2023 Borys Boiko
+
 #include "vertex.h"
 
+#include <vector>
 
-std::array<vk::VertexInputAttributeDescription, 3> e172vp::Vertex::attributeDescriptions() {
-    std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions{};
+std::array<
+    vk::VertexInputAttributeDescription,
+    3>
+e172vp::Vertex::attributeDescriptions()
+{
+    std::array<vk::VertexInputAttributeDescription, 3> attributeDescriptions {};
 
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
@@ -22,11 +29,15 @@ std::array<vk::VertexInputAttributeDescription, 3> e172vp::Vertex::attributeDesc
     return attributeDescriptions;
 }
 
-std::vector<e172vp::Vertex> e172vp::Vertex::fromGlm(const std::vector<glm::vec3> &vertices, const std::vector<glm::vec2> &texCoords, glm::vec3 color) {
+std::vector<e172vp::Vertex> e172vp::Vertex::fromGlm(
+    const std::vector<glm::vec3>& vertices,
+    const std::vector<glm::vec2>& texCoords,
+    glm::vec3 color)
+{
     std::vector<e172vp::Vertex> result(vertices.size());
-    for(size_t i = 0; i < vertices.size(); ++i) {
-        glm::vec2 tex_c;
-        if(i < texCoords.size()) {
+    for (size_t i = 0; i < vertices.size(); ++i) {
+        glm::vec2 tex_c = { 0, 0 };
+        if (i < texCoords.size()) {
             tex_c = texCoords[i];
         }
 
@@ -35,8 +46,9 @@ std::vector<e172vp::Vertex> e172vp::Vertex::fromGlm(const std::vector<glm::vec3>
     return result;
 }
 
-vk::VertexInputBindingDescription e172vp::Vertex::bindingDescription() {
-    vk::VertexInputBindingDescription bindingDescription{};
+vk::VertexInputBindingDescription e172vp::Vertex::bindingDescription()
+{
+    vk::VertexInputBindingDescription bindingDescription {};
     bindingDescription.binding = 0;
     bindingDescription.stride = sizeof(Vertex);
     bindingDescription.inputRate = vk::VertexInputRate::eVertex;
@@ -44,8 +56,9 @@ vk::VertexInputBindingDescription e172vp::Vertex::bindingDescription() {
     return bindingDescription;
 }
 
-bool e172vp::operator ==(const e172vp::Vertex &v0, const e172vp::Vertex &v1) {
-    return (v0.position == v1.position)
-            || (v0.color == v1.color)
-            || (v0.texCoord == v1.texCoord);
+bool e172vp::operator==(
+    const e172vp::Vertex& v0,
+    const e172vp::Vertex& v1)
+{
+    return (v0.position == v1.position) || (v0.color == v1.color) || (v0.texCoord == v1.texCoord);
 }

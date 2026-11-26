@@ -1,20 +1,20 @@
-#ifndef GRAPHICSINSTANCE_H
-#define GRAPHICSINSTANCE_H
+// Copyright 2023 Borys Boiko
 
-#include "graphicsobjectcreateinfo.h"
+#pragma once
+
 #include "../tools/hardware.h"
-
-#include <vulkan/vulkan.hpp>
-#include <queue>
-#include <map>
-#include "swapchain.h"
-#include "renderpass.h"
 #include "commandpool.h"
+#include "graphicsobjectcreateinfo.h"
+#include "renderpass.h"
+#include "swapchain.h"
+#include <string>
+#include <vector>
+#include <vulkan/vulkan.hpp>
 
 namespace e172vp {
 
 class GraphicsObject {
-    //VkDebugReportCallbackEXT m_debugReportCallbackObject;
+    // VkDebugReportCallbackEXT m_debugReportCallbackObject;
 
     vk::Instance m_vulkanInstance;
     vk::SurfaceKHR m_surface;
@@ -38,13 +38,18 @@ class GraphicsObject {
     bool m_isValid = false;
     std::vector<std::string> m_errors;
 
-
 public:
-    void createTextureSampler(const vk::Device &logicalDevice, vk::Sampler *sampler);
+    void createTextureSampler(
+        const vk::Device& logicalDevice,
+        vk::Sampler* sampler);
 
-    static void createDescriptorPool(const vk::Device &logicalDevice, size_t size, vk::DescriptorPool *uniformDescriptorPool, std::vector<std::string> *m_errors);
+    static void createDescriptorPool(
+        const vk::Device& logicalDevice,
+        size_t size,
+        vk::DescriptorPool* uniformDescriptorPool,
+        std::vector<std::string>* m_errors);
     GraphicsObject() {}
-    GraphicsObject(const GraphicsObjectCreateInfo &createInfo);
+    GraphicsObject(const GraphicsObjectCreateInfo& createInfo);
 
     vk::Instance vulkanInstance() const;
     vk::PhysicalDevice physicalDevice() const;
@@ -67,4 +72,3 @@ public:
 };
 
 }
-#endif // GRAPHICSINSTANCE_H

@@ -1,12 +1,13 @@
-#ifndef LOGICDEVICEFACTORY_H
-#define LOGICDEVICEFACTORY_H
+// Copyright 2023 Borys Boiko
 
-#include <vulkan/vulkan.hpp>
+#pragma once
+
 #include "hardware.h"
+#include <string>
+#include <vector>
+#include <vulkan/vulkan.hpp>
 
 namespace e172vp {
-
-
 
 class LogicDeviceFactory {
     Hardware::QueueFamilies m_queueFamilies;
@@ -18,15 +19,15 @@ class LogicDeviceFactory {
 
 public:
     LogicDeviceFactory();
-    vk::Device create(const vk::PhysicalDevice &physicalDevice);
+    vk::Device create(const vk::PhysicalDevice& physicalDevice);
     Hardware::QueueFamilies queueFamilies() const;
-    void setQueueFamilies(const Hardware::QueueFamilies &queueFamilies);
+    void setQueueFamilies(const Hardware::QueueFamilies& queueFamilies);
     std::vector<std::string> errors() const;
     std::vector<std::string> requiredDeviceExtensions() const;
-    void setRequiredDeviceExtensions(const std::vector<std::string> &requiredDeviceExtensions);
+    void setRequiredDeviceExtensions(const std::vector<std::string>& requiredDeviceExtensions);
     bool validationLayersEnabled() const;
     void setValidationLayersEnabled(bool validationLayersEnabled);
     std::vector<std::string> enabledValidationLayers() const;
 };
-}
-#endif // LOGICDEVICEFACTORY_H
+
+} // namespace e172vp
