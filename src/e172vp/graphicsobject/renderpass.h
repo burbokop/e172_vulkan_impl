@@ -1,22 +1,34 @@
-#ifndef RENDERPASS_H
-#define RENDERPASS_H
+// Copyright 2023 Borys Boiko
 
-#include <vulkan/vulkan.hpp>
+#pragma once
+
 #include "swapchain.h"
+#include <string>
+#include <vector>
+#include <vulkan/vulkan.hpp>
 
 namespace e172vp {
-
 
 class RenderPass {
     vk::RenderPass m_renderPathHandle;
     std::vector<vk::Framebuffer> m_frameBuffers;
     std::vector<std::string> m_errors;
     bool m_isValid = false;
+
 public:
-    static bool createFrameBuffers(const vk::Device &logicalDevice, const vk::Extent2D &extent, const vk::RenderPass &renderPass, const std::vector<vk::ImageView> &swapChainImageViews, std::vector<vk::Framebuffer> *swapChainFramebuffers, std::vector<std::string> *error_queue);
+    static bool createFrameBuffers(
+        const vk::Device& logicalDevice,
+        const vk::Extent2D& extent,
+        const vk::RenderPass& renderPass,
+        const std::vector<vk::ImageView>& swapChainImageViews,
+        std::vector<vk::Framebuffer>* swapChainFramebuffers,
+        std::vector<std::string>* error_queue);
 
     RenderPass() {}
-    RenderPass(const vk::Device &logicalDevice, const SwapChain &swapchain, int subpassCount = 1);
+    RenderPass(
+        const vk::Device& logicalDevice,
+        const SwapChain& swapchain,
+        int subpassCount = 1);
     vk::RenderPass renderPathHandle() const;
     operator vk::RenderPass() const;
     operator VkRenderPass() const;
@@ -29,4 +41,3 @@ public:
 };
 
 }
-#endif // RENDERPASS_H

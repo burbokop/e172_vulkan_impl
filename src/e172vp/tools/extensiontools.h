@@ -1,8 +1,9 @@
-#ifndef EXTENSIONTOOLS_H
-#define EXTENSIONTOOLS_H
+// Copyright 2023 Borys Boiko
 
-#include <vector>
+#pragma once
+
 #include <string>
+#include <vector>
 #include <vulkan/vulkan.hpp>
 
 namespace e172vp {
@@ -12,5 +13,4 @@ struct Extension {
     static std::vector<std::string> presentDeviceExtensions(vk::PhysicalDevice physicalDevice);
 };
 
-}
-#endif // EXTENSIONTOOLS_H
+} // namespace e172vp

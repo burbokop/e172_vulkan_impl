@@ -1,6 +1,8 @@
-#ifndef ABSTRACTVERTEXOBJECT_H
-#define ABSTRACTVERTEXOBJECT_H
+// Copyright 2023 Borys Boiko
 
+#pragma once
+
+#include <vector>
 #include <vulkan/vulkan.hpp>
 
 namespace e172vp {
@@ -13,8 +15,9 @@ class AbstractVertexObject {
     friend PresentationObject;
     bool m_visible = true;
     bool m_bindGlobalDescriptorSet = false;
-    GraphicsObject *m_graphicsObject = nullptr;
-    Pipeline *m_pipeline = nullptr;
+    GraphicsObject* m_graphicsObject = nullptr;
+    Pipeline* m_pipeline = nullptr;
+
 public:
     AbstractVertexObject();
 
@@ -25,20 +28,18 @@ public:
     virtual std::vector<vk::DescriptorSet> descriptorSets() = 0;
     virtual ~AbstractVertexObject();
     virtual void initialize(
-            const GraphicsObject *graphicsObject,
-            int frameCount,
-            const DescriptorSetLayout *objectDSL,
-            const DescriptorSetLayout *samplerDSL
-            ) = 0;
+        const GraphicsObject* graphicsObject,
+        int frameCount,
+        const DescriptorSetLayout* objectDSL,
+        const DescriptorSetLayout* samplerDSL) = 0;
 
     bool visible() const;
     void setVisible(bool visible);
     bool bindGlobalDescriptorSet() const;
     void setBindGlobalDescriptorSet(bool bindGlobalDescriptorSet);
-    Pipeline *pipeline() const;
-    void setPipeline(Pipeline *pipeline);
-    GraphicsObject *graphicsObject() const;
+    Pipeline* pipeline() const;
+    void setPipeline(Pipeline* pipeline);
+    GraphicsObject* graphicsObject() const;
 };
 
-}
-#endif // ABSTRACTVERTEXOBJECT_H
+} // namespace e172vp

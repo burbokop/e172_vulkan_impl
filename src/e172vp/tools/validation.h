@@ -1,8 +1,9 @@
-#ifndef VALIDATION_H
-#define VALIDATION_H
+// Copyright 2023 Borys Boiko
 
-#include <vector>
+#pragma once
+
 #include <string>
+#include <vector>
 
 namespace e172vp {
 
@@ -10,6 +11,4 @@ struct Validation {
     static std::vector<std::string> presentLayers();
 };
 
-}
-
-#endif // VALIDATION_H
+} // namespace e172vp

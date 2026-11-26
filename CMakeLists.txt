@@ -1,23 +1,22 @@
 cmake_minimum_required(VERSION 3.26.3)
 
 project(
-  e172_vulkan_impl
-  LANGUAGES CXX
-  VERSION 0.0.1
-  DESCRIPTION "Vulkan implementation of e172"
-  HOMEPAGE_URL "https://github.com/burbokop/e172_vulkan_impl")
+    e172_vulkan_impl
+    LANGUAGES CXX
+    VERSION 0.0.1
+    DESCRIPTION "Vulkan implementation of e172"
+    HOMEPAGE_URL "https://github.com/burbokop/e172_vulkan_impl")
 
 option(ENABLE_FIND_E172_PACKAGE
-       "Find e172 package (searches for link and include directories if OFF)"
-       ON)
+       "Find e172 package (searches for link and include directories if OFF)" ON)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
-  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
-endif()
+if (CCACHE_PROGRAM)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif ()
 
 include(GNUInstallDirs)
 
@@ -26,154 +25,180 @@ add_library(${PROJECT_NAME} SHARED)
 set(INSTALL_NAMESPACE e172)
 set(INSTALL_IMPL_NAMESPACE vulkan)
 
-set(INSTALLDIR
-    "${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAMESPACE}/impl/${INSTALL_IMPL_NAMESPACE}"
-)
+set(INSTALLDIR "${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAMESPACE}/impl/${INSTALL_IMPL_NAMESPACE}")
 
 target_sources(
-  ${PROJECT_NAME}
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/graphicsprovider.h>
-         $<INSTALL_INTERFACE:${INSTALLDIR}/graphicsprovider.h>
-         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/renderer.h>
-         $<INSTALL_INTERFACE:${INSTALLDIR}/renderer.h>
-  PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/src/renderer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/graphicsprovider.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobject.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobjectcreateinfo.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobjectcreateinfo.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/hardware.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/hardware.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/extensiontools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/extensiontools.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/validation.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/validation.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/stringvector.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/stringvector.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/presentationobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/presentationobject.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/vulkaninstancefactory.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/vulkaninstancefactory.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/logicdevicefactory.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/logicdevicefactory.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/swapchain.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/swapchain.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/renderpass.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/renderpass.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/commandpool.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/commandpool.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertex.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertex.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/buffer.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/buffer.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/externaltexvertexobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/externaltexvertexobject.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/descriptorsetlayout.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/descriptorsetlayout.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/mesh.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/mesh.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/pipeline.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/pipeline.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/font.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/font.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/abstractvertexobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/abstractvertexobject.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/bootstrapobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/bootstrapobject.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/texturedvertexobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/texturedvertexobject.h
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/wirevertexobject.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/wirevertexobject.h)
+    ${PROJECT_NAME}
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/graphicsprovider.h>
+           $<INSTALL_INTERFACE:${INSTALLDIR}/graphicsprovider.h>
+           $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src/renderer.h>
+           $<INSTALL_INTERFACE:${INSTALLDIR}/renderer.h>
+    PRIVATE ${CMAKE_CURRENT_LIST_DIR}/src/renderer.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/graphicsprovider.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobject.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobject.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobjectcreateinfo.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/graphicsobjectcreateinfo.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/hardware.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/hardware.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/extensiontools.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/extensiontools.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/validation.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/validation.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/stringvector.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/stringvector.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/presentationobject.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/presentationobject.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/vulkaninstancefactory.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/vulkaninstancefactory.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/logicdevicefactory.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/logicdevicefactory.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/swapchain.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/swapchain.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/renderpass.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/renderpass.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/commandpool.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/graphicsobject/commandpool.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertex.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertex.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/buffer.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/buffer.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/externaltexvertexobject.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/externaltexvertexobject.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/descriptorsetlayout.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/descriptorsetlayout.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/mesh.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/tools/mesh.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/pipeline.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/pipeline.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/font.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/font.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/abstractvertexobject.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/abstractvertexobject.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/bootstrapobject.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/bootstrapobject.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/texturedvertexobject.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/texturedvertexobject.h
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/wirevertexobject.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/src/e172vp/vertexobjects/wirevertexobject.h)
 
 find_package(Vulkan REQUIRED)
+find_package(glm CONFIG REQUIRED)
 
-if(ENABLE_FIND_E172_PACKAGE)
-  find_package(e172 REQUIRED)
-endif()
+if (ENABLE_FIND_E172_PACKAGE)
+    find_package(e172 REQUIRED)
+endif ()
 
 file(DOWNLOAD https://cdn-icons-png.flaticon.com/512/2598/2598640.png
      ${CMAKE_CURRENT_BINARY_DIR}/resources/images/banana.png SHOW_PROGRESS)
 
 e172_add_resources(
-  resources
-  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_inter.frag
-  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_inter.spv
-  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_sampler.frag
-  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_sampler.spv
-  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_linestrip.spv
-  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_linestrip.vert
-  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_uniform.spv
-  ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_uniform.vert
-  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/cube.obj
-  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship.obj
-  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship1.mtl
-  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship1.obj
-  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.mtl
-  ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.obj
-  ${CMAKE_CURRENT_BINARY_DIR}/resources/images/banana.png)
+    resources
+    ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_inter.frag
+    ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_inter.spv
+    ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_sampler.frag
+    ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/frag_sampler.spv
+    ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_linestrip.spv
+    ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_linestrip.vert
+    ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_uniform.spv
+    ${CMAKE_CURRENT_LIST_DIR}/resources/shaders/vert_uniform.vert
+    ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/cube.obj
+    ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship.obj
+    ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship1.mtl
+    ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship1.obj
+    ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.mtl
+    ${CMAKE_CURRENT_LIST_DIR}/resources/meshes/ship2.obj
+    ${CMAKE_CURRENT_BINARY_DIR}/resources/images/banana.png)
 
 target_sources(
-  ${PROJECT_NAME}
-  PUBLIC
-  PRIVATE ${resources})
+    ${PROJECT_NAME}
+    PUBLIC
+    PRIVATE ${resources})
 
-if($ENV{WITH_MAGURA})
-  find_package(magura REQUIRED)
-  target_connect_magura(${PROJECT_NAME})
-  target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan freetype)
-else($ENV{WITH_MAGURA})
-  target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan SDL2 freetype)
-endif($ENV{WITH_MAGURA})
+if ($ENV{WITH_MAGURA})
+    find_package(magura REQUIRED)
+    target_connect_magura(${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan glm::glm freetype)
+else ($ENV{WITH_MAGURA})
+    find_package(SDL2 CONFIG REQUIRED)
 
-if(ENABLE_FIND_E172_PACKAGE)
-  target_link_libraries(${PROJECT_NAME} PRIVATE e172::e172)
-else()
-  target_link_libraries(${PROJECT_NAME} PRIVATE e172)
-endif()
+    # Helper macro to find SDL2 satellite libraries via CONFIG or PkgConfig
+    macro (find_sdl2_satellite TARGET_NAME PKG_NAME)
+        find_package(${TARGET_NAME} CONFIG QUIET)
+        if (NOT ${TARGET_NAME}_FOUND)
+            find_package(PkgConfig REQUIRED)
+            pkg_check_modules(${TARGET_NAME}_PKG REQUIRED IMPORTED_TARGET ${PKG_NAME})
+            add_library(${TARGET_NAME}::${TARGET_NAME} ALIAS PkgConfig::${TARGET_NAME}_PKG)
+        endif ()
+    endmacro ()
 
-target_include_directories(${PROJECT_NAME}
-                           PRIVATE $<BUILD_INTERFACE:/usr/include/freetype2>)
+    find_sdl2_satellite(SDL2_image SDL2_image)
+    find_sdl2_satellite(SDL2_ttf SDL2_ttf)
 
-if((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL
-                                                "GNU"))
-  target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra)
-endif()
+    target_link_libraries(
+        ${PROJECT_NAME}
+        PRIVATE
+            Vulkan::Vulkan
+            glm::glm
+            freetype
+            $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+            $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+            $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>
+            $<IF:$<TARGET_EXISTS:SDL2_ttf::SDL2_ttf>,SDL2_ttf::SDL2_ttf,SDL2_ttf::SDL2_ttf-static>)
+endif ($ENV{WITH_MAGURA})
+
+if (ENABLE_FIND_E172_PACKAGE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE e172::e172)
+else ()
+    target_link_libraries(${PROJECT_NAME} PRIVATE e172)
+endif ()
+
+target_include_directories(${PROJECT_NAME} PRIVATE $<BUILD_INTERFACE:/usr/include/freetype2>)
+
+if ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
+    target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra
+                                                   -Wno-error=deprecated-declarations)
+endif ()
 
 install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}_targets
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}_targets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 install(
-  DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/src/"
-  DESTINATION
-    "${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAMESPACE}/impl/${INSTALL_IMPL_NAMESPACE}"
-  FILES_MATCHING
-  PATTERN "*.h")
+    DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/src/"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${INSTALL_NAMESPACE}/impl/${INSTALL_IMPL_NAMESPACE}"
+    FILES_MATCHING
+    PATTERN "*.h")
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-  "${PROJECT_NAME}ConfigVersion.cmake"
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMinorVersion)
+    "${PROJECT_NAME}ConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMinorVersion)
 
 configure_package_config_file(
-  "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+    "${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
 install(
-  EXPORT ${PROJECT_NAME}_targets
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${INSTALL_NAMESPACE}::
-  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+    EXPORT ${PROJECT_NAME}_targets
+    FILE ${PROJECT_NAME}Targets.cmake
+    NAMESPACE ${INSTALL_NAMESPACE}::
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
 install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
               "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
+
+set(CPACK_PACKAGE_NAME "libe172-vulkan-impl")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS
+    "libe172, libsdl2-dev, libsdl2-image-dev, libsdl2-ttf-dev, libvulkan-dev, libglm-dev")
+set(CPACK_PACKAGE_CONTACT "io.github.burbokop")
+include(CPack)

@@ -1,8 +1,11 @@
-#ifndef VULKANINSTANCEFACTORY_H
-#define VULKANINSTANCEFACTORY_H
+// Copyright 2023 Borys Boiko
 
-#include <vulkan/vulkan.hpp>
+#pragma once
+
 #include <map>
+#include <string>
+#include <vector>
+#include <vulkan/vulkan.hpp>
 
 namespace e172vp {
 
@@ -14,7 +17,7 @@ class VulkanInstanceFactory {
     static inline const uint32_t m_apiVersion = VK_MAKE_VERSION(1, 0, 2);
     bool m_debugEnabled = false;
 
-    //now no used
+    // now no used
     std::string m_instanceDebugId;
     std::vector<std::string> m_requiredExtensions;
 
@@ -22,41 +25,43 @@ class VulkanInstanceFactory {
 
     VkDebugReportCallbackEXT m_debugReportCallbackObject;
 
-    void initDebugReportCallback(const vk::Instance &instance, VkDebugReportCallbackEXT *callbackObject, std::vector<std::string> *error_queue);
+    void initDebugReportCallback(
+        const vk::Instance& instance,
+        VkDebugReportCallbackEXT* callbackObject,
+        std::vector<std::string>* error_queue);
 
     static inline size_t m_nextInstanceIndex = 0;
     static inline std::map<size_t, std::string> m_instanceDebugIdMap;
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(
-                    VkDebugReportFlagsEXT,
-                    VkDebugReportObjectTypeEXT,
-                    uint64_t,
-                    size_t,
-                    int32_t,
-                    const char*,
-                    const char* message,
-                    void*
-            );
+        VkDebugReportFlagsEXT,
+        VkDebugReportObjectTypeEXT,
+        uint64_t,
+        size_t,
+        int32_t,
+        const char*,
+        const char* message,
+        void*);
 
 public:
-    VulkanInstanceFactory(const std::string &applicationName = std::string(), uint32_t applicationVersion = 0);
+    VulkanInstanceFactory(
+        const std::string& applicationName = std::string(),
+        uint32_t applicationVersion = 0);
     vk::Instance create();
-    void setApplicationName(const std::string &applicationName);
+    void setApplicationName(const std::string& applicationName);
     std::string applicationName() const;
     uint32_t applicationVersion() const;
-    void setApplicationVersion(const uint32_t &applicationVersion);
+    void setApplicationVersion(const uint32_t& applicationVersion);
     static std::string engineName();
     static uint32_t engineVersion();
     static uint32_t apiVersion();
     bool debugEnabled() const;
     void setDebugEnabled(bool debugEnabled);
     std::vector<std::string> requiredExtensions() const;
-    void setRequiredExtensions(const std::vector<std::string> &requiredExtensions);
+    void setRequiredExtensions(const std::vector<std::string>& requiredExtensions);
     std::vector<std::string> errors() const;
     VkDebugReportCallbackEXT debugReportCallbackObject() const;
     std::string instanceDebugId() const;
-    void setInstanceDebugId(const std::string &instanceDebugId);
+    void setInstanceDebugId(const std::string& instanceDebugId);
 };
 
-}
-
-#endif // VULKANINSTANCEFACTORY_H
+} // namespace e172vp

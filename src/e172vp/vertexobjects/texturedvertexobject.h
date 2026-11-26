@@ -1,14 +1,18 @@
-#ifndef TEXTUREDVERTEXOBJECT_H
-#define TEXTUREDVERTEXOBJECT_H
+// Copyright 2023 Borys Boiko
 
-#include "abstractvertexobject.h"
+#pragma once
+
 #include "../vertex.h"
+#include "abstractvertexobject.h"
 #include <glm/glm.hpp>
+#include <vector>
 
 namespace e172vp {
 
 class TexturedVertexObject : public AbstractVertexObject {
-    struct ubo { glm::mat4 model; };
+    struct ubo {
+        glm::mat4 model;
+    };
 
     glm::mat4 m_rotation = glm::mat4(1);
     glm::mat4 m_translation = glm::mat4(1);
@@ -23,7 +27,6 @@ class TexturedVertexObject : public AbstractVertexObject {
 
     std::vector<vk::DescriptorSet> m_descriptorSets;
 
-
     std::vector<Vertex> m_vertices;
     std::vector<uint32_t> m_indices;
 
@@ -33,21 +36,28 @@ class TexturedVertexObject : public AbstractVertexObject {
 
     int m_textureWidth;
     int m_textureHeight;
+
 public:
-    TexturedVertexObject(int textureWidth, int textureHeight);
+    TexturedVertexObject(
+        int textureWidth,
+        int textureHeight);
 
     ~TexturedVertexObject();
 
     // AbstractVertexObject interface
 public:
-    virtual void initialize(const GraphicsObject *graphicsObject, int frameCount, const DescriptorSetLayout *objectDSL, const DescriptorSetLayout *samplerDSL) override;
-    virtual vk::Buffer vertexBuffer() const override;
-    virtual vk::Buffer indexBuffer() const override;
-    virtual uint32_t indexCount() const override;
-    virtual void update(int) override;
-    virtual std::vector<vk::DescriptorSet> descriptorSets() override;    
+    void initialize(
+        const GraphicsObject* graphicsObject,
+        int frameCount,
+        const DescriptorSetLayout* objectDSL,
+        const DescriptorSetLayout* samplerDSL) override;
+    vk::Buffer vertexBuffer() const override;
+    vk::Buffer indexBuffer() const override;
+    uint32_t indexCount() const override;
+    void update(int) override;
+    std::vector<vk::DescriptorSet> descriptorSets() override;
     int textureWidth() const;
     int textureHeight() const;
 };
-}
-#endif // TEXTUREDVERTEXOBJECT_H
+
+} // namespace e172vp

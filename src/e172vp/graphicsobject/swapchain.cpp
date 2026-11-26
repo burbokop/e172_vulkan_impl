@@ -1,67 +1,62 @@
+// Copyright 2023 Borys Boiko
+
 #include "swapchain.h"
 
+#include <algorithm>
 #include <limits>
+#include <string>
+#include <vector>
 
-vk::SwapchainKHR e172vp::SwapChain::swapChainHandle() const {
-    return m_swapChainHandle;
-}
+vk::SwapchainKHR e172vp::SwapChain::swapChainHandle() const { return m_swapChainHandle; }
 
-e172vp::SwapChain::operator vk::SwapchainKHR() const {
-    return m_swapChainHandle;
-}
+e172vp::SwapChain::operator vk::SwapchainKHR() const { return m_swapChainHandle; }
 
-std::vector<std::string> e172vp::SwapChain::pullErrors() {
+std::vector<std::string> e172vp::SwapChain::pullErrors()
+{
     const auto r = m_errors;
     m_errors.clear();
     return r;
 }
 
-bool e172vp::SwapChain::isValid() const {
-    return m_isValid;
-}
+bool e172vp::SwapChain::isValid() const { return m_isValid; }
 
-vk::Image e172vp::SwapChain::image(size_t index) const {
-    if(index < m_images.size())
+vk::Image e172vp::SwapChain::image(size_t index) const
+{
+    if (index < m_images.size())
         return m_images[index];
     return vk::Image();
 }
 
-size_t e172vp::SwapChain::imageCount() const {
-    return m_images.size();
-}
+size_t e172vp::SwapChain::imageCount() const { return m_images.size(); }
 
-vk::ImageView e172vp::SwapChain::imageView(size_t index) const {
-    if(index < m_imageViewes.size())
+vk::ImageView e172vp::SwapChain::imageView(size_t index) const
+{
+    if (index < m_imageViewes.size())
         return m_imageViewes[index];
     return vk::ImageView();
 }
 
-size_t e172vp::SwapChain::imageViewCount() const {
-    return m_imageViewes.size();
-}
+size_t e172vp::SwapChain::imageViewCount() const { return m_imageViewes.size(); }
 
-std::vector<vk::Image> e172vp::SwapChain::imageVector() const {
-    return m_images;
-}
+std::vector<vk::Image> e172vp::SwapChain::imageVector() const { return m_images; }
 
-std::vector<vk::ImageView> e172vp::SwapChain::imageViewVector() const {
-    return m_imageViewes;
-}
+std::vector<vk::ImageView> e172vp::SwapChain::imageViewVector() const { return m_imageViewes; }
 
-e172vp::SwapChain::Settings e172vp::SwapChain::settings() const {
-    return m_settings;
-}
+e172vp::SwapChain::Settings e172vp::SwapChain::settings() const { return m_settings; }
 
-vk::SurfaceFormatKHR e172vp::SwapChain::chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats) {
+vk::SurfaceFormatKHR e172vp::SwapChain::chooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+{
     for (const auto& availableFormat : availableFormats) {
-        if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
+        if (availableFormat.format == vk::Format::eB8G8R8A8Srgb
+            && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
             return availableFormat;
         }
     }
     return availableFormats[0];
 }
 
-vk::PresentModeKHR e172vp::SwapChain::choosePresentMode(const std::vector<vk::PresentModeKHR> &availablePresentModes) {
+vk::PresentModeKHR e172vp::SwapChain::choosePresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes)
+{
     for (const auto& availablePresentMode : availablePresentModes) {
         if (availablePresentMode == vk::PresentModeKHR::eMailbox) {
             return availablePresentMode;
@@ -70,20 +65,28 @@ vk::PresentModeKHR e172vp::SwapChain::choosePresentMode(const std::vector<vk::Pr
     return vk::PresentModeKHR::eFifo;
 }
 
-vk::Extent2D e172vp::SwapChain::chooseExtent(const vk::SurfaceCapabilitiesKHR &capabilities, const vk::Extent2D &defaultExtent) {
+vk::Extent2D e172vp::SwapChain::chooseExtent(
+    const vk::SurfaceCapabilitiesKHR& capabilities,
+    const vk::Extent2D& defaultExtent)
+{
     if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return capabilities.currentExtent;
     } else {
-        VkExtent2D actualExtent = defaultExtent;
+        auto actualExtent = defaultExtent;
 
-        actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+        actualExtent.width = std::
+            max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = std::
+            max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
 
         return actualExtent;
     }
 }
 
-e172vp::SwapChain::Settings e172vp::SwapChain::createSettings(const e172vp::Hardware::SwapChainSupportDetails &supportDetails, const vk::Extent2D &defaultExtent) {
+e172vp::SwapChain::Settings e172vp::SwapChain::createSettings(
+    const e172vp::Hardware::SwapChainSupportDetails& supportDetails,
+    const vk::Extent2D& defaultExtent)
+{
     Settings result;
     result.surfaceFormat = chooseSurfaceFormat(supportDetails.formats);
     result.presentMode = choosePresentMode(supportDetails.presentModes);
@@ -92,18 +95,30 @@ e172vp::SwapChain::Settings e172vp::SwapChain::createSettings(const e172vp::Hard
     return result;
 }
 
-bool e172vp::SwapChain::createImageViewes(const vk::Device &logicDevice, const std::vector<vk::Image> &swapChainImages, const vk::Format &swapChainImageFormat, std::vector<vk::ImageView> *swapChainImageViews, std::vector<std::string> *error_queue) {
+bool e172vp::SwapChain::createImageViewes(
+    const vk::Device& logicDevice,
+    const std::vector<vk::Image>& swapChainImages,
+    const vk::Format& swapChainImageFormat,
+    std::vector<vk::ImageView>* swapChainImageViews,
+    std::vector<std::string>* error_queue)
+{
     swapChainImageViews->resize(swapChainImages.size());
 
     for (uint32_t i = 0; i < swapChainImages.size(); i++) {
-        swapChainImageViews->operator[](i) = createImageView(logicDevice, swapChainImages[i], swapChainImageFormat, error_queue);
-        if(!swapChainImageViews->operator[](i))
+        swapChainImageViews->operator[](
+            i) = createImageView(logicDevice, swapChainImages[i], swapChainImageFormat, error_queue);
+        if (!swapChainImageViews->operator[](i))
             return false;
     }
     return true;
 }
 
-vk::ImageView e172vp::SwapChain::createImageView(const vk::Device &logicalDevice, vk::Image image, vk::Format format, std::vector<std::string> *error_queue) {
+vk::ImageView e172vp::SwapChain::createImageView(
+    const vk::Device& logicalDevice,
+    vk::Image image,
+    vk::Format format,
+    std::vector<std::string>* error_queue)
+{
     vk::ImageViewCreateInfo viewInfo;
     viewInfo.image = image;
     viewInfo.viewType = vk::ImageViewType::e2D;
@@ -116,18 +131,21 @@ vk::ImageView e172vp::SwapChain::createImageView(const vk::Device &logicalDevice
 
     vk::ImageView imageView;
     if (logicalDevice.createImageView(&viewInfo, nullptr, &imageView) != vk::Result::eSuccess) {
-        if(error_queue)
+        if (error_queue)
             error_queue->push_back("failed to create texture image view");
     }
 
     return imageView;
 }
 
-e172vp::SwapChain::SwapChain() {
+e172vp::SwapChain::SwapChain() {}
 
-}
-
-e172vp::SwapChain::SwapChain(const vk::Device &logicalDevice, const vk::SurfaceKHR &surface, const Hardware::QueueFamilies &queueFamilies, const Settings &settings) {
+e172vp::SwapChain::SwapChain(
+    const vk::Device& logicalDevice,
+    const vk::SurfaceKHR& surface,
+    const Hardware::QueueFamilies& queueFamilies,
+    const Settings& settings)
+{
     uint32_t imageCount = 3;
     if (imageCount > settings.supportDetails.capabilities.maxImageCount) {
         imageCount = settings.supportDetails.capabilities.maxImageCount;
@@ -143,7 +161,7 @@ e172vp::SwapChain::SwapChain(const vk::Device &logicalDevice, const vk::SurfaceK
     swapchainCreateInfo.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
     swapchainCreateInfo.setPNext(nullptr);
 
-    uint32_t queueFamilyIndices[] = { queueFamilies.graphicsFamily(), queueFamilies.presentFamily()};
+    uint32_t queueFamilyIndices[] = { queueFamilies.graphicsFamily(), queueFamilies.presentFamily() };
 
     if (queueFamilies.graphicsFamily() != queueFamilies.presentFamily()) {
         swapchainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
@@ -160,13 +178,12 @@ e172vp::SwapChain::SwapChain(const vk::Device &logicalDevice, const vk::SurfaceK
     swapchainCreateInfo.presentMode = settings.presentMode;
     swapchainCreateInfo.clipped = true;
 
-
     m_swapChainHandle = logicalDevice.createSwapchainKHR(swapchainCreateInfo);
     m_isValid = m_swapChainHandle;
-    if(m_isValid) {
+    if (m_isValid) {
         m_images = logicalDevice.getSwapchainImagesKHR(m_swapChainHandle);
         m_isValid = createImageViewes(logicalDevice, m_images, settings.surfaceFormat.format, &m_imageViewes, &m_errors);
-        if(m_isValid)
+        if (m_isValid)
             m_settings = settings;
     }
 }

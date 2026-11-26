@@ -1,5 +1,6 @@
-#ifndef DESCRIPTORSETLAYOUT_H
-#define DESCRIPTORSETLAYOUT_H
+// Copyright 2023 Borys Boiko
+
+#pragma once
 
 #include <vulkan/vulkan.hpp>
 
@@ -10,10 +11,15 @@ class DescriptorSetLayout {
     vk::Device m_logicalDevice;
     uint32_t m_binding = -1;
     bool m_isValid = false;
+
 public:
-    static DescriptorSetLayout createUniformDSL(const vk::Device &logicalDevice, uint32_t binding);
-    static DescriptorSetLayout createSamplerDSL(const vk::Device &logicalDevice, uint32_t binding);
-    static void destroy(const DescriptorSetLayout &descriptorSetLayout);
+    static DescriptorSetLayout createUniformDSL(
+        const vk::Device& logicalDevice,
+        uint32_t binding);
+    static DescriptorSetLayout createSamplerDSL(
+        const vk::Device& logicalDevice,
+        uint32_t binding);
+    static void destroy(const DescriptorSetLayout& descriptorSetLayout);
 
     DescriptorSetLayout() {}
 
@@ -23,5 +29,4 @@ public:
     bool isValid() const;
 };
 
-}
-#endif // DESCRIPTORSETLAYOUT_H
+} // namespace e172vp

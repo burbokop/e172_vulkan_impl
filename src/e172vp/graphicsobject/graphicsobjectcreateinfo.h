@@ -1,14 +1,13 @@
+// Copyright 2023 Borys Boiko
 
-#ifndef GRAPHICSINSTANCECREATEINFO_H
-#define GRAPHICSINSTANCECREATEINFO_H
+#pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
 #include <vulkan/vulkan.hpp>
 
 namespace e172vp {
-
 
 class GraphicsObjectCreateInfo {
     std::string m_applicationName;
@@ -19,26 +18,32 @@ class GraphicsObjectCreateInfo {
     size_t m_descriptorPoolSize = 4086;
     size_t m_subpassCount = 1;
     bool m_debugEnabled = false;
+
 public:
     GraphicsObjectCreateInfo();
 
     const std::string applicationName() const;
-    void setApplicationName(const std::string &applicationName);
+    void setApplicationName(const std::string& applicationName);
     uint32_t applicationVersion() const;
-    void setApplicationVersion(const uint32_t &applicationVersion);
+    void setApplicationVersion(const uint32_t& applicationVersion);
     const std::vector<std::string> requiredExtensions() const;
-    void setRequiredExtensions(const std::vector<std::string> &requiredExtensions);
-    std::function<void (vk::Instance, vk::SurfaceKHR *)> surfaceCreator() const;
-    void setSurfaceCreator(const std::function<void (vk::Instance, vk::SurfaceKHR *)> &surfaceCreator);
+    void setRequiredExtensions(const std::vector<std::string>& requiredExtensions);
+    std::function<void(
+        vk::Instance,
+        vk::SurfaceKHR*)>
+    surfaceCreator() const;
+    void setSurfaceCreator(
+        const std::function<void(
+            vk::Instance,
+            vk::SurfaceKHR*)>& surfaceCreator);
     bool debugEnabled() const;
     void setDebugEnabled(bool debugEnabled);
     std::vector<std::string> requiredDeviceExtensions() const;
-    void setRequiredDeviceExtensions(const std::vector<std::string> &requiredDeviceExtensions);
+    void setRequiredDeviceExtensions(const std::vector<std::string>& requiredDeviceExtensions);
     size_t descriptorPoolSize() const;
-    void setDescriptorPoolSize(const size_t &descriptorPoolSize);
+    void setDescriptorPoolSize(const size_t& descriptorPoolSize);
     size_t subpassCount() const;
-    void setSubpassCount(const size_t &subpassCount);
+    void setSubpassCount(const size_t& subpassCount);
 };
 
 }
-#endif // GRAPHICSINSTANCECREATEINFO_H
